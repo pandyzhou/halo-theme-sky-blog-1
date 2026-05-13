@@ -17,7 +17,7 @@
 | ------- | -------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | Batch 0 | 基线与测试闭环 | 全部                                                                                                         | 建立本方案、基础 smoke 和深度 smoke 命令                                                           | `pnpm lint`、`pnpm build-only`、`pnpm verify:plugins`          |
 | Batch 1 | 内容核心页     | Links `v1.7.2`、Photos `v2.1.0`、Moments `v1.16.0`、Friends `v1.4.5`、Docsme 免费版 `1.5.0` / 专业版 `1.6.0` | 已补 Docsme 目录脚本与 0 篇文档项目禁用态、Moments POST 渲染；Links 当前契约正确，无需查询逻辑改造 | `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/login` |
-| Batch 2 | 扩展内容页     | Bangumi `1.4.0`、Steam `0.3.0`、Equipment `v1.1.1`、Douban `v1.2.5`                                          | Bangumi/Steam/Equipment 已有页面；Douban 本轮暂缓，不新增主题页                                    | `/bangumis`、`/steam`、`/equipments`                           |
+| Batch 2 | 扩展内容页     | Bangumi `1.4.0`、Steam `0.3.0`、Equipment `v1.1.1`、Douban `v1.2.5`                                          | Bangumi/Steam/Equipment 已有页面；Douban 已接入第一版海报网格页面                                  | `/bangumis`、`/steam`、`/equipments`、`/douban`                |
 | Batch 3 | 工具链插件     | Search Widget `v1.7.1`、Comment Widget `v3.1.1`、Shiki `v1.3.0`、lightgallery、Text Diagram、Vote            | 已完成当前 Chrome 实看；深度 smoke 覆盖搜索入口、评论脚本、Shiki 注入和 lightgallery 绑定          | 导航搜索、文章评论、文档代码块、图库/瞬间图片                  |
 | Batch 4 | 认证与发布链路 | Passkey `v1.0.4`、link-submit、存储插件                                                                      | 登录表单保留 `halo-form`，友链提交弹窗已补评论留言兜底；Alist 标记为不可用                         | `/login`、`/links` 申请弹窗、`/moments` 发布弹窗               |
 
@@ -33,7 +33,7 @@
 | Bangumi        | `templates/bangumis.html`、`templates/modules/bangumi/*`、`src/pages/bangumi/*`                                       | `/bangumis` 路由变量 `bangumis`、`bangumiFinder`                                              | 主题只渲染分页结果，不重建抓取逻辑                                                                                                         |
 | Steam          | `templates/steam.html`、`templates/modules/steam/*`、`src/pages/steam/*`、`templates/modules/widgets/steam-card.html` | 插件 REST API、可选 `steamFinder`                                                             | 前端 API 调用必须有错误态和缓存；Finder 使用时要判空                                                                                       |
 | Equipment      | `templates/equipments.html`、`templates/modules/equipments/*`、`src/pages/equipment/*`                                | `/equipments` 路由变量 `groups`、`equipmentFinder`、插件片段 `plugin:equipment:modules/style` | `v1.1.1` 新增公开 API，但 Thymeleaf 页面仍优先使用路由模型                                                                                 |
-| Douban         | 待新增 `templates/douban.html`、`templates/modules/douban/*`、`src/pages/douban/*`                                    | `/douban` 路由变量 `douban`、`genres`、`types`、`doubanFinder`                                | 第一版先做列表/筛选/分页；`types` 接口只作为增强能力                                                                                       |
+| Douban         | `templates/douban.html`、`templates/modules/douban/*`、`src/pages/douban/*`                                           | `/douban` 页面壳 + 公开 API `/apis/api.douban.moony.la/v1alpha1/doubanmovies`                 | `v1.2.5` 默认路由懒加载 `douban` 变量在空筛选参数下会触发插件侧 NPE；主题第一版避免触发该变量，改用公开 API 渲染海报网格                   |
 | Search Widget  | `templates/modules/nav.html`、`src/common/css/base.css`                                                               | `SearchWidget.open()`                                                                         | 只在 `pluginFinder.available('PluginSearchWidget')` 时显示入口                                                                             |
 | Comment Widget | 各页面 `<halo:comment>`                                                                                               | Halo 评论组件                                                                                 | 评论 subject 必须使用对应插件 group/kind/name                                                                                              |
 | Shiki          | 文章页/文档页内容区                                                                                                   | 插件 head 注入与内容处理                                                                      | 主题只处理暗亮色和 PJAX 后渲染，不引入新的代码高亮库                                                                                       |
@@ -107,7 +107,7 @@ Search Widget 进一步输入复验时，插件搜索接口 `/apis/api.halo.run/
 ## 剩余事项
 
 1. 继续保留基础 smoke、深度 smoke 与浏览器验收三层验证，避免把数据依赖页面塞进默认命令导致普通本地环境误报。
-2. Bangumi、Steam、Equipment 维持现有页面回归；Douban 按本轮要求暂缓。
+2. Bangumi、Steam、Equipment、Douban 维持现有页面回归；Douban 当前按公开 API 验收海报网格、筛选、分页与空态。
 3. Alist 存储直接标记不可用，不再安排真实上传复测；Moments 上传使用本地存储或 S3。
 4. Passkey 真实登录、Moments 真实发布/上传属于会改变认证或内容状态的流程，只在需要改认证或发布模板时重新跑完整手测。
 5. 天气外部接口偶发 504 会污染浏览器控制台，需要后续单独做数据源超时/降级噪声治理。

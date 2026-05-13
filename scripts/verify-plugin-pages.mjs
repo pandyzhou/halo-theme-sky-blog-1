@@ -46,6 +46,11 @@ const checks = [
     markers: ["equipment-page", "装备", "equipment.js"],
   },
   {
+    name: "Douban",
+    path: "/douban",
+    markers: ["douban-page", "douban-grid", "douban.js"],
+  },
+  {
     name: "Login",
     path: "/login",
     markers: ["halo-form", "欢迎回来", "fragmentTemplateName"],

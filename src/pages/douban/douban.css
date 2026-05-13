@@ -1,0 +1,457 @@
+/**
+ * 豆瓣记录页面 - 海报收藏网格
+ */
+
+.douban-page {
+  --douban-card-border: color-mix(in oklch, var(--color-base-content) 8%, transparent);
+  --douban-card-hover: color-mix(in oklch, var(--color-primary) 18%, transparent);
+  --douban-panel-bg: color-mix(in oklch, var(--color-base-100) 74%, transparent);
+}
+
+.douban-bg {
+  background:
+    radial-gradient(circle at 16% 18%, color-mix(in oklch, var(--color-primary) 16%, transparent), transparent 30%),
+    radial-gradient(circle at 82% 12%, color-mix(in oklch, var(--color-secondary) 10%, transparent), transparent 28%);
+  opacity: 0.34;
+}
+
+.douban-bg-mask {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--color-base-100) 20%, transparent) 0%,
+    var(--color-base-100) 72%,
+    var(--color-base-100) 100%
+  );
+}
+
+.douban-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.douban-title {
+  margin: 0 0 0.5rem;
+  color: var(--color-base-content);
+  font-size: clamp(1.75rem, 2vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.douban-subtitle {
+  color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+  font-size: 0.9375rem;
+}
+
+.douban-count-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--douban-card-border);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-content) 5%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.douban-count-pill strong {
+  color: var(--color-base-content);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.douban-count-pill span {
+  color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.douban-filter-panel {
+  margin-bottom: 2rem;
+  padding: 0.75rem;
+  border: 1px solid var(--douban-card-border);
+  border-radius: 1rem;
+  background: var(--douban-panel-bg);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px -24px color-mix(in oklch, var(--color-base-content) 24%, transparent);
+}
+
+.douban-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.douban-filter-row::-webkit-scrollbar {
+  display: none;
+}
+
+.douban-status-row,
+.douban-genre-row {
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid color-mix(in oklch, var(--color-base-content) 8%, transparent);
+}
+
+.douban-filter-item {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.625rem;
+  color: color-mix(in oklch, var(--color-base-content) 68%, transparent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.douban-filter-item:hover {
+  background: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  color: var(--color-base-content);
+}
+
+.douban-filter-item.active {
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
+.douban-filter-count {
+  opacity: 0.72;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.douban-type-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.douban-genre-item {
+  min-height: 2rem;
+  padding: 0.4375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+}
+
+.douban-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.douban-card-wrap {
+  min-width: 0;
+}
+
+.douban-card {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.25s ease;
+}
+
+.douban-card:hover {
+  transform: translateY(-4px);
+}
+
+.douban-cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 1px solid var(--douban-card-border);
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  box-shadow: var(--art-shadow-md);
+}
+
+.douban-cover::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(to bottom, transparent 58%, rgb(0 0 0 / 0.22));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.douban-cover img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition:
+    opacity 0.3s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.45s;
+}
+
+.douban-cover img.load-error {
+  display: none;
+}
+
+.douban-cover img.loaded {
+  opacity: 1;
+}
+
+.douban-card:hover .douban-cover {
+  box-shadow: var(--art-shadow-xl);
+}
+
+.douban-card:hover .douban-cover::after {
+  opacity: 1;
+}
+
+.douban-card:hover .douban-cover img {
+  filter: brightness(1.04);
+  transform: scale(1.045);
+}
+
+.douban-cover-placeholder {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: color-mix(in oklch, var(--color-base-content) 34%, transparent);
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in oklch, var(--color-primary) 14%, transparent), transparent 32%),
+    color-mix(in oklch, var(--color-base-content) 6%, transparent);
+}
+
+.douban-score,
+.douban-type-badge {
+  position: absolute;
+  z-index: 2;
+  border-radius: 0.5rem;
+  backdrop-filter: blur(8px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.douban-score {
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.3125rem 0.5rem;
+  background: color-mix(in oklch, var(--color-primary) 92%, transparent);
+  color: var(--color-primary-content);
+}
+
+.douban-type-badge {
+  bottom: 0.5rem;
+  left: 0.5rem;
+  padding: 0.3125rem 0.5rem;
+  background: rgb(0 0 0 / 0.56);
+  color: white;
+}
+
+.douban-info {
+  padding: 0.75rem 0.125rem 0;
+}
+
+.douban-name {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: var(--color-base-content);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.douban-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+  color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+  font-size: 0.75rem;
+}
+
+.douban-meta > * + *::before {
+  margin-right: 0.375rem;
+  color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+  content: "/";
+}
+
+.douban-card-subtitle,
+.douban-remark {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.douban-card-subtitle {
+  margin-top: 0.5rem;
+  color: color-mix(in oklch, var(--color-base-content) 58%, transparent);
+  -webkit-line-clamp: 2;
+}
+
+.douban-remark {
+  margin-top: 0.5rem;
+  color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+  -webkit-line-clamp: 2;
+}
+
+.douban-empty,
+.douban-error,
+.douban-loading {
+  display: flex;
+  min-height: 18rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in oklch, var(--color-base-content) 14%, transparent);
+  border-radius: 1rem;
+  color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+  background: color-mix(in oklch, var(--color-base-100) 50%, transparent);
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+.douban-loading {
+  gap: 0.75rem;
+  min-height: 12rem;
+  border-style: solid;
+}
+
+.douban-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-top: 2.5rem;
+}
+
+.douban-page-btn {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: color-mix(in oklch, var(--color-base-content) 62%, transparent);
+  background: color-mix(in oklch, var(--color-base-content) 5%, transparent);
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.douban-page-btn:hover:not(:disabled) {
+  color: var(--color-base-content);
+  background: color-mix(in oklch, var(--color-base-content) 10%, transparent);
+}
+
+.douban-page-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.34;
+}
+
+.douban-page-info {
+  min-width: 4.5rem;
+  color: color-mix(in oklch, var(--color-base-content) 50%, transparent);
+  font-size: 0.75rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+@keyframes douban-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.douban-animate-in {
+  animation: douban-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.douban-stagger-1 {
+  animation-delay: 0.06s;
+}
+
+.douban-stagger-2 {
+  animation-delay: 0.12s;
+}
+
+@media (min-width: 640px) {
+  .douban-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .douban-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .douban-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .douban-header {
+    display: block;
+  }
+
+  .douban-count-pill {
+    display: none;
+  }
+
+  .douban-filter-panel {
+    margin-inline: -0.25rem;
+    border-radius: 0.875rem;
+  }
+
+  .douban-card-subtitle,
+  .douban-remark {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .douban-animate-in,
+  .douban-card,
+  .douban-cover img {
+    animation: none;
+    transition: none;
+  }
+}
