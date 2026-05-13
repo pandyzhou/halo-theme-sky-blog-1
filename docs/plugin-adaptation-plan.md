@@ -89,16 +89,18 @@ pnpm verify:plugins:deep
 
 2026-05-13 在本地 Halo `http://localhost:8090` 用真实浏览器完成以下不改数据的交互复验：
 
-| 项目              | 验收入口                                                               | 结果                                                       |
-| ----------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| PJAX 页面切换     | `/` → `/moments` → `/docs`                                             | URL、标题和页面主体按预期切换，`window.SkyPjax` 可用       |
-| Docsme 目录到详情 | `/docs/halo-theme-sky-blog-1/theme-settings` → `theme-settings/global` | 目录页和子文档均可打开，评论区域正常出现                   |
-| Search Widget     | 首页搜索按钮 / `SearchWidget.open()`                                   | `PluginSearchWidget v1.7.1` 注入，搜索弹窗可打开           |
-| Shiki             | `/archives/editor-feature-demo`                                        | 页面存在 `shiki-code`，代码块由 `plugin-shiki v1.3.0` 接管 |
-| Comment Widget    | `/archives/editor-feature-demo`、Docsme 文档详情                       | 评论区域文案出现，插件脚本注入正常                         |
-| lightgallery      | `/moments`                                                             | 点击瞬间图片后 lightgallery 容器打开                       |
-| 暗色切换          | 首页顶部主题按钮                                                       | `html[data-color-scheme]` 可从 `dark` 切到 `light`         |
-| 移动端基础布局    | 首页 `390x844` 视口                                                    | 无横向溢出，首页插件模块仍可见                             |
+| 项目              | 验收入口                                                               | 结果                                                          |
+| ----------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------- |
+| PJAX 页面切换     | `/` → `/moments` → `/docs`                                             | URL、标题和页面主体按预期切换，`window.SkyPjax` 可用          |
+| Docsme 目录到详情 | `/docs/halo-theme-sky-blog-1/theme-settings` → `theme-settings/global` | 目录页和子文档均可打开，评论区域正常出现                      |
+| Search Widget     | 首页搜索按钮 / `SearchWidget.open()`，关键词 `Halo` / `测试`           | `PluginSearchWidget v1.7.1` 注入；弹窗、输入框、结果/空态可用 |
+| Shiki             | `/archives/editor-feature-demo`                                        | 页面存在 `shiki-code`，代码块由 `plugin-shiki v1.3.0` 接管    |
+| Comment Widget    | `/archives/editor-feature-demo`、Docsme 文档详情                       | 评论区域文案出现，插件脚本注入正常                            |
+| lightgallery      | `/moments`                                                             | 点击瞬间图片后 lightgallery 容器打开                          |
+| 暗色切换          | 首页顶部主题按钮                                                       | `html[data-color-scheme]` 可从 `dark` 切到 `light`            |
+| 移动端基础布局    | 首页 `390x844` 视口                                                    | 无横向溢出，首页插件模块仍可见                                |
+
+Search Widget 进一步输入复验时，插件搜索接口 `/apis/api.halo.run/v1alpha1/indices/-/search` 能正常返回结果；当前本地索引包含 `/archives/hello-halo`、`/archives/ce-shi` 等已不存在文章，点击会进入 404。该问题属于本地搜索索引/内容数据需要重建，不是主题模板适配缺口。
 
 浏览器控制台出现过天气服务外部接口 504 / fallback 日志，属于天气数据源降级，不属于本轮插件适配阻塞项。
 
@@ -109,3 +111,4 @@ pnpm verify:plugins:deep
 3. Alist 存储直接标记不可用，不再安排真实上传复测；Moments 上传使用本地存储或 S3。
 4. Passkey 真实登录、Moments 真实发布/上传属于会改变认证或内容状态的流程，只在需要改认证或发布模板时重新跑完整手测。
 5. 天气外部接口偶发 504 会污染浏览器控制台，需要后续单独做数据源超时/降级噪声治理。
+6. 多 Halo / 多插件版本矩阵需要额外环境；本轮只确认当前本地 Halo 与当前插件集。
