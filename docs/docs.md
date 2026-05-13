@@ -7,8 +7,8 @@
 版本要求：
 
 - 文档首页、内容页和目录页使用 Docsme 官方模板变量与页面协议。
-- 首页「文档中心」模块使用 `docsmeProjectsFinder`，需要 `plugin-docsme` `>=1.4.0`。
-- Halo 免费版可从官方应用市场安装 `1.5.0` 免授权版本；专业版/商业版当前版本为 `1.6.0`：[Docsme 文档管理](https://www.halo.run/store/apps/app-yffxw)。
+- 首页「文档中心」模块使用 `docsmeProjectsFinder`，最低需要 `plugin-docsme >=1.4.0`。
+- 当前主题适配基线：免费版 `1.5.0`，专业版/商业版 `1.6.0`：[Docsme 文档管理](https://www.halo.run/store/apps/app-yffxw)。
 
 ---
 

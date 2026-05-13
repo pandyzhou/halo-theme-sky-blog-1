@@ -2,6 +2,7 @@
 
 const baseUrl = (process.env.SMOKE_BASE_URL || "http://localhost:8090").replace(/\/+$/, "");
 const timeoutMs = Number.parseInt(process.env.SMOKE_TIMEOUT_MS || "10000", 10);
+const deepMode = /^(1|true|yes|on)$/i.test(process.env.VERIFY_PLUGIN_DEEP || "");
 
 const checks = [
   {
@@ -51,6 +52,10 @@ const checks = [
   },
 ];
 
+function envPath(name, fallback) {
+  return process.env[name] || fallback;
+}
+
 const optionalChecks = [
   {
     env: "PHOTO_DETAIL_URL",
@@ -69,6 +74,51 @@ const optionalChecks = [
   },
 ];
 
+const deepChecks = [
+  {
+    name: "Home Plugin Widgets",
+    path: envPath("HOME_URL", "/"),
+    markers: ["文档中心", "友情链接", "瞬间说说"],
+    match: "all",
+  },
+  {
+    name: "Docsme Catalog",
+    path: envPath("DOC_CATALOG_URL", "/docs/halo-theme-sky-blog-1/theme-settings"),
+    markers: ["doc-layout", "主题配置功能详解", "plugin-docsme 免费版 1.5.0 / 专业版 1.6.0"],
+    match: "all",
+  },
+  {
+    name: "Article Shiki",
+    path: envPath("ARTICLE_CODE_URL", "/archives/editor-feature-demo"),
+    markers: ["plugin-shiki", "shiki-code.js?version=1.3.0", "<shiki-code"],
+    match: "all",
+  },
+  {
+    name: "Comment Widget",
+    path: envPath("COMMENT_PAGE_URL", process.env.DOC_DETAIL_URL || "/archives/editor-feature-demo"),
+    markers: ["plugin-comment-widget", "comment-widget.js?version=3.1.1", "评论交流"],
+    match: "all",
+  },
+  {
+    name: "Search Widget",
+    path: envPath("SEARCH_PAGE_URL", "/"),
+    markers: ["PluginSearchWidget", "SearchWidget.open()"],
+    match: "all",
+  },
+  {
+    name: "Lightgallery Moments",
+    path: envPath("LIGHTGALLERY_PAGE_URL", "/moments"),
+    markers: ["PluginLightGallery", "lightgallery.min.js", "moment-media"],
+    match: "all",
+  },
+  {
+    name: "Author Moments",
+    path: envPath("AUTHOR_URL", "/authors/sky0821"),
+    markers: ["author_tab", "瞬间 (", "查看所有瞬间"],
+    match: "all",
+  },
+];
+
 for (const optional of optionalChecks) {
   const path = process.env[optional.env];
   if (path) {
@@ -78,6 +128,10 @@ for (const optional of optionalChecks) {
       markers: optional.markers,
     });
   }
+}
+
+if (deepMode) {
+  checks.push(...deepChecks);
 }
 
 function resolveUrl(path) {
@@ -100,8 +154,18 @@ async function fetchWithTimeout(url) {
   }
 }
 
-function findMarker(html, markers) {
-  return markers.find((marker) => html.includes(marker));
+function findMarkers(html, markers) {
+  return markers.filter((marker) => html.includes(marker));
+}
+
+function evaluateMarkers(html, check) {
+  const foundMarkers = findMarkers(html, check.markers);
+  const ok = check.match === "all" ? foundMarkers.length === check.markers.length : foundMarkers.length > 0;
+
+  return {
+    foundMarkers,
+    ok,
+  };
 }
 
 const results = [];
@@ -111,15 +175,21 @@ for (const check of checks) {
   try {
     const response = await fetchWithTimeout(url);
     const html = await response.text();
-    const marker = findMarker(html, check.markers);
-    const ok = response.status === 200 && Boolean(marker);
+    const markers = evaluateMarkers(html, check);
+    const ok = response.status === 200 && markers.ok;
     results.push({
       ...check,
       url,
       status: response.status,
-      marker: marker || "-",
+      marker: markers.foundMarkers.join(", ") || "-",
       ok,
-      error: ok ? "" : marker ? `unexpected status ${response.status}` : "marker not found",
+      error: ok
+        ? ""
+        : markers.ok
+          ? `unexpected status ${response.status}`
+          : check.match === "all"
+            ? "required markers not found"
+            : "marker not found",
     });
   } catch (error) {
     results.push({
@@ -136,6 +206,9 @@ for (const check of checks) {
 const width = Math.max(...results.map((result) => result.name.length), 10);
 
 console.log(`Plugin smoke base: ${baseUrl}`);
+if (deepMode) {
+  console.log("Plugin smoke mode: deep");
+}
 for (const result of results) {
   const icon = result.ok ? "OK" : "FAIL";
   const name = result.name.padEnd(width, " ");

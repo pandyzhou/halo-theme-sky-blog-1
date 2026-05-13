@@ -10,7 +10,8 @@
     "format": "prettier --write './**/*.{ts,json,yaml,yml,html}'",
     "prepare": "husky",
     "prettier": "prettier --write './**/*.{ts,json,yaml,yml,html}'",
-    "verify:plugins": "node scripts/verify-plugin-pages.mjs"
+    "verify:plugins": "node scripts/verify-plugin-pages.mjs",
+    "verify:plugins:deep": "VERIFY_PLUGIN_DEEP=1 node scripts/verify-plugin-pages.mjs"
   },
   "lint-staged": {
     "*.{ts,json,yaml,yml,html}": [

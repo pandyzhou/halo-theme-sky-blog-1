@@ -15,11 +15,11 @@
 
 | 批次    | 范围           | 插件                                                                                                         | 当前主题状态                                                                                       | 验收入口                                                       |
 | ------- | -------------- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Batch 0 | 基线与测试闭环 | 全部                                                                                                         | 建立本方案与 smoke 命令                                                                            | `pnpm lint`、`pnpm build-only`、`pnpm verify:plugins`          |
+| Batch 0 | 基线与测试闭环 | 全部                                                                                                         | 建立本方案、基础 smoke 和深度 smoke 命令                                                           | `pnpm lint`、`pnpm build-only`、`pnpm verify:plugins`          |
 | Batch 1 | 内容核心页     | Links `v1.7.2`、Photos `v2.1.0`、Moments `v1.16.0`、Friends `v1.4.5`、Docsme 免费版 `1.5.0` / 专业版 `1.6.0` | 已补 Docsme 目录脚本与 0 篇文档项目禁用态、Moments POST 渲染；Links 当前契约正确，无需查询逻辑改造 | `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/login` |
-| Batch 2 | 扩展内容页     | Bangumi `1.4.0`、Steam `0.3.0`、Equipment `v1.1.1`、Douban `v1.2.5`                                          | Bangumi/Steam/Equipment 已有页面；Douban 待新增主题页                                              | `/bangumis`、`/steam`、`/equipments`、后续 `/douban`           |
-| Batch 3 | 工具链插件     | Search Widget `v1.7.1`、Comment Widget `v3.1.1`、Shiki `v1.3.0`、lightgallery、Text Diagram、Vote            | 已有全局入口、CSS 变量和 PJAX 脚本重放基础                                                         | 导航搜索、文章评论、文档代码块、图库/瞬间图片                  |
-| Batch 4 | 认证与发布链路 | Passkey `v1.0.4`、link-submit、存储插件                                                                      | 登录表单保留 `halo-form`，友链提交弹窗已补评论留言兜底；存储依赖瞬间发布真实环境                   | `/login`、`/links` 申请弹窗、`/moments` 发布弹窗               |
+| Batch 2 | 扩展内容页     | Bangumi `1.4.0`、Steam `0.3.0`、Equipment `v1.1.1`、Douban `v1.2.5`                                          | Bangumi/Steam/Equipment 已有页面；Douban 本轮暂缓，不新增主题页                                    | `/bangumis`、`/steam`、`/equipments`                           |
+| Batch 3 | 工具链插件     | Search Widget `v1.7.1`、Comment Widget `v3.1.1`、Shiki `v1.3.0`、lightgallery、Text Diagram、Vote            | 已完成当前 Chrome 实看；深度 smoke 覆盖搜索入口、评论脚本、Shiki 注入和 lightgallery 绑定          | 导航搜索、文章评论、文档代码块、图库/瞬间图片                  |
+| Batch 4 | 认证与发布链路 | Passkey `v1.0.4`、link-submit、存储插件                                                                      | 登录表单保留 `halo-form`，友链提交弹窗已补评论留言兜底；Alist 标记为存储兼容风险                   | `/login`、`/links` 申请弹窗、`/moments` 发布弹窗               |
 
 ## 插件契约矩阵
 
@@ -38,6 +38,7 @@
 | Comment Widget | 各页面 `<halo:comment>`                                                                                               | Halo 评论组件                                                                                 | 评论 subject 必须使用对应插件 group/kind/name                                                                                              |
 | Shiki          | 文章页/文档页内容区                                                                                                   | 插件 head 注入与内容处理                                                                      | 主题只处理暗亮色和 PJAX 后渲染，不引入新的代码高亮库                                                                                       |
 | Passkey        | `templates/login.html`、`templates/gateway_fragments/login.html`                                                      | 插件认证提供者片段                                                                            | 登录表单必须保留 `.halo-form` 和动态 `fragmentTemplateName`                                                                                |
+| Alist 存储     | 文档标记；瞬间发布使用 Halo UC 附件 API                                                                               | `plugin-alist` 附件存储策略                                                                   | 当前不列为可用存储后端；应用市场最新 `1.1.3` 仍需单独复测较新 Halo 版本下的附件 `status` / 预览链接兼容性                                  |
 
 ## 每批测试标准
 
@@ -68,16 +69,25 @@ SMOKE_BASE_URL=http://localhost:8091 pnpm verify:plugins
 PHOTO_DETAIL_URL=/photos/{photoName} MOMENT_DETAIL_URL=/moments/{momentName} DOC_DETAIL_URL=/docs/{project}/{doc} pnpm verify:plugins
 ```
 
+深度 smoke 会额外检查首页插件组件、Docsme 目录页、文章代码块 Shiki、评论组件、搜索组件、Moments lightgallery 和作者页 Moments 区块：
+
+```bash
+pnpm verify:plugins:deep
+```
+
+深度 smoke 的默认路径按当前本地测试数据设置。其他站点可通过 `HOME_URL`、`DOC_CATALOG_URL`、`ARTICLE_CODE_URL`、`COMMENT_PAGE_URL`、`SEARCH_PAGE_URL`、`LIGHTGALLERY_PAGE_URL`、`AUTHOR_URL` 覆盖。
+
 ### 浏览器人工验收
 
 - 桌面和移动端各看一次插件页布局。
 - 从首页或导航进入插件页，再 PJAX 返回上一个插件页。
 - 打开暗色模式，确认 Search、Comment、Shiki、lightgallery 颜色不漂移。
 - 对 Photos、Moments、Docsme 这类含富文本/图片/评论的页面，确认脚本只初始化一次。
+- Passkey 真实登录、Moments 真实发布和上传属于带状态操作；如果主题模板未修改，优先复用站点手工验收结果，不在自动脚本里写入内容或改变认证状态。
 
-## 下一批实施顺序
+## 剩余事项
 
-1. Batch 1 先做回归：`/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/login` 全部 smoke 和浏览器复验。
-2. Batch 2 新增 Douban 页面，再顺手回归 Bangumi、Steam、Equipment。
-3. Batch 3 集中处理工具链插件：搜索弹窗、评论组件、Shiki 代码块、lightgallery PJAX 重放。
-4. Batch 4 专门测登录/Passkey、友链申请和瞬间发布上传，避免和普通展示页混在一起。
+1. 继续保留基础 smoke 与深度 smoke 双层验证，避免把数据依赖页面塞进默认命令导致普通本地环境误报。
+2. Bangumi、Steam、Equipment 维持现有页面回归；Douban 按本轮要求暂缓。
+3. Alist 存储在插件或 Halo 版本更新后需要单独复测，不作为 Moments 上传的推荐后端。
+4. Passkey 真实登录、Moments 真实发布/上传只在需要改认证或发布模板时重新跑完整手测。
