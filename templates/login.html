@@ -1,6 +1,7 @@
 <!doctype html>
 <html xmlns:th="https://www.thymeleaf.org"
     th:replace="~{gateway_fragments/layout :: layout(title = |登录 - ${site.title}|, head = null, body = ~{::body})}">
+<!-- 兼容基线：halo-plugin-auth-passkey v1.0.4；登录表单结构由 gateway_fragments/login.html 保持兼容。 -->
 <th:block th:fragment="body">
     <!-- 大标题 -->
     <h1 class="auth-title">欢迎回来</h1>

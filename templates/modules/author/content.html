@@ -219,37 +219,46 @@
                             <audio th:src="${momentItem.url}" controls="controls"
                               class="w-full h-10 outline-none"></audio>
                           </div>
+                          <th:block th:if="${momentItem.type.name() == 'POST'}">
+                            <th:block th:replace="~{modules/moments/post-media :: post-card(${momentItem}, false)}" />
+                          </th:block>
                         </th:block>
                       </th:block>
 
-                      <!-- 多图网格 (动态排版 2-9图) -->
-                      <div th:if="${#lists.size(content.medium) > 1}" class="grid gap-1 rounded-xl overflow-hidden"
-                        th:classappend="${
-                          #lists.size(content.medium) == 2 ? 'grid-cols-2 w-3/4' :
-                          #lists.size(content.medium) == 3 ? 'grid-cols-3' :
-                          #lists.size(content.medium) == 4 ? 'grid-cols-2 w-3/4' :
-                          #lists.size(content.medium) == 5 ? 'grid-cols-6' :
-                          #lists.size(content.medium) == 6 ? 'grid-cols-3' :
-                          #lists.size(content.medium) == 7 ? 'grid-cols-12' :
-                          #lists.size(content.medium) == 8 ? 'grid-cols-6' : 'grid-cols-3'
-                        }">
-                        <th:block th:each="momentItem, mStat : ${content.medium}">
+                      <!-- 多媒体网格：POST 单独放在网格后，避免影响图片排版 -->
+                      <th:block th:if="${#lists.size(content.medium) > 1}" th:with="
+                        nonPostMedia = ${content.medium.?[type.name() != 'POST']},
+                        postMedia = ${content.medium.?[type.name() == 'POST']}
+                      ">
+                        <div th:if="${nonPostMedia != null and !nonPostMedia.isEmpty()}"
+                          class="grid gap-1 rounded-xl overflow-hidden"
+                          th:classappend="${
+                            #lists.size(nonPostMedia) == 1 ? 'grid-cols-1' :
+                            #lists.size(nonPostMedia) == 2 ? 'grid-cols-2 w-3/4' :
+                            #lists.size(nonPostMedia) == 3 ? 'grid-cols-3' :
+                            #lists.size(nonPostMedia) == 4 ? 'grid-cols-2 w-3/4' :
+                            #lists.size(nonPostMedia) == 5 ? 'grid-cols-6' :
+                            #lists.size(nonPostMedia) == 6 ? 'grid-cols-3' :
+                            #lists.size(nonPostMedia) == 7 ? 'grid-cols-12' :
+                            #lists.size(nonPostMedia) == 8 ? 'grid-cols-6' : 'grid-cols-3'
+                          }">
+                        <th:block th:each="momentItem, mStat : ${nonPostMedia}">
                           <div th:if="${momentItem.type.name() == 'PHOTO' && mStat.index < 9}" class="moment-grid-item"
                             th:classappend="${
-                              #lists.size(content.medium) == 3 && mStat.index == 0 ? 'col-span-2 row-span-2 aspect-square' :
-                              #lists.size(content.medium) == 3 && mStat.index > 0 ? 'col-span-1 aspect-square' :
-                              #lists.size(content.medium) == 5 && mStat.index < 2 ? 'col-span-3 aspect-[4/3]' :
-                              #lists.size(content.medium) == 5 && mStat.index >= 2 ? 'col-span-2 aspect-square' :
-                              #lists.size(content.medium) == 7 && mStat.index < 3 ? 'col-span-4 aspect-square' :
-                              #lists.size(content.medium) == 7 && mStat.index >= 3 ? 'col-span-3 aspect-square' :
-                              #lists.size(content.medium) == 8 && mStat.index < 2 ? 'col-span-3 aspect-[4/3]' :
-                              #lists.size(content.medium) == 8 && mStat.index >= 2 ? 'col-span-2 aspect-square' : 'aspect-square'
+                              #lists.size(nonPostMedia) == 3 && mStat.index == 0 ? 'col-span-2 row-span-2 aspect-square' :
+                              #lists.size(nonPostMedia) == 3 && mStat.index > 0 ? 'col-span-1 aspect-square' :
+                              #lists.size(nonPostMedia) == 5 && mStat.index < 2 ? 'col-span-3 aspect-[4/3]' :
+                              #lists.size(nonPostMedia) == 5 && mStat.index >= 2 ? 'col-span-2 aspect-square' :
+                              #lists.size(nonPostMedia) == 7 && mStat.index < 3 ? 'col-span-4 aspect-square' :
+                              #lists.size(nonPostMedia) == 7 && mStat.index >= 3 ? 'col-span-3 aspect-square' :
+                              #lists.size(nonPostMedia) == 8 && mStat.index < 2 ? 'col-span-3 aspect-[4/3]' :
+                              #lists.size(nonPostMedia) == 8 && mStat.index >= 2 ? 'col-span-2 aspect-square' : 'aspect-square'
                             }">
                             <img th:src="${momentItem.url}" loading="lazy" />
-                            <div th:if="${mStat.index == 8 && #lists.size(content.medium) > 9}"
+                            <div th:if="${mStat.index == 8 && #lists.size(nonPostMedia) > 9}"
                               class="absolute inset-0 bg-black/50 flex items-center justify-center" style="z-index:2">
                               <span class="text-white text-xl font-semibold"
-                                th:text="'+' + (${#lists.size(content.medium)} - 9)">+3</span>
+                                th:text="'+' + (${#lists.size(nonPostMedia)} - 9)">+3</span>
                             </div>
                           </div>
                           <!-- 视频 -->
@@ -265,7 +274,13 @@
                               class="w-full h-10 outline-none"></audio>
                           </div>
                         </th:block>
-                      </div>
+                        </div>
+                        <div th:if="${postMedia != null and !postMedia.isEmpty()}" class="mt-2 space-y-2">
+                          <th:block th:each="momentItem : ${postMedia}">
+                            <th:block th:replace="~{modules/moments/post-media :: post-card(${momentItem}, false)}" />
+                          </th:block>
+                        </div>
+                      </th:block>
 
                     </div>
 

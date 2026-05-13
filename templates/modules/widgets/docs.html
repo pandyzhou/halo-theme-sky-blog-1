@@ -1,4 +1,5 @@
 <th:block th:fragment="docs(context)">
+  <!-- 兼容基线：plugin-docsme Finder >=1.4.0；免费版 1.5.0 / 专业版 1.6.0 均可用。 -->
   <th:block th:with="docsSettings = ${theme.config.index.docs_settings}">
     <section
       th:if="${docsSettings != null and docsSettings.enable_docs == true}"

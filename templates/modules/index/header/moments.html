@@ -126,7 +126,7 @@
                   <!-- 只有媒体时显示媒体提示 -->
                   <span th:unless="${hasText}" class="flex items-center gap-2 text-white/70">
                     <span class="icon-[material-symbols--image] h-5 w-5"></span>
-                    <span th:text="${#lists.size(content.medium) + ' 张图片/视频'}"></span>
+                    <span th:text="${#lists.size(content.medium) + ' 个媒体内容'}"></span>
                   </span>
                 </div>
 

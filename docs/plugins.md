@@ -51,6 +51,18 @@
 
 ## 插件参数
 
+### 分批适配与验收
+
+当前主题的插件适配按批次推进，完整批次、版本基线和 smoke 命令见 [插件分批适配方案](./plugin-adaptation-plan.md)。
+
+本地 Halo 启动后，可执行：
+
+```bash
+pnpm verify:plugins
+```
+
+默认检查 `http://localhost:8090` 下的 `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/bangumis`、`/steam`、`/equipments`、`/login`。
+
 ### 友链自主提交插件 (plugin-links)
 
 > **建议配置：**

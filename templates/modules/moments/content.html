@@ -1,5 +1,7 @@
 <!-- ========================================== -->
 <!--     瞬间列表页 - 朋友圈+苹果风格               -->
+<!-- 兼容基线：PluginMoments v1.16.0；路由注入 moments/tags，分页使用 prevUrl/nextUrl。 -->
+<!-- 当前媒体渲染覆盖 PHOTO/VIDEO/AUDIO/POST；POST 仅使用 url/originType 渲染关联内容卡。 -->
 <!-- ========================================== -->
 <th:block th:fragment="content">
 
@@ -109,41 +111,62 @@
                         <div th:if="${medium.type.name == 'AUDIO'}" class="bg-base-200 rounded-xl p-3">
                           <audio th:src="${medium.url}" controls class="w-full"></audio>
                         </div>
+                        <th:block th:if="${medium.type.name == 'POST'}">
+                          <th:block th:replace="~{modules/moments/post-media :: post-card(${medium}, false)}" />
+                        </th:block>
                       </th:block>
                     </th:block>
 
-                    <!-- 多图网格 (动态排版 2-9图) -->
-                    <div th:if="${#lists.size(content.medium) > 1}" class="grid gap-1 rounded-xl overflow-hidden"
-                      th:classappend="${
-                        #lists.size(content.medium) == 2 ? 'grid-cols-2 w-3/4' : 
-                        #lists.size(content.medium) == 3 ? 'grid-cols-3' : 
-                        #lists.size(content.medium) == 4 ? 'grid-cols-2 w-3/4' : 
-                        #lists.size(content.medium) == 5 ? 'grid-cols-6' : 
-                        #lists.size(content.medium) == 6 ? 'grid-cols-3' : 
-                        #lists.size(content.medium) == 7 ? 'grid-cols-12' : 
-                        #lists.size(content.medium) == 8 ? 'grid-cols-6' : 'grid-cols-3'
-                      }">
-                      <th:block th:each="medium, stat : ${content.medium}">
+                    <!-- 多媒体网格：POST 单独放在网格后，避免影响图片排版 -->
+                    <th:block th:if="${#lists.size(content.medium) > 1}" th:with="
+                      nonPostMedia = ${content.medium.?[type.name() != 'POST']},
+                      postMedia = ${content.medium.?[type.name() == 'POST']}
+                    ">
+                      <div th:if="${nonPostMedia != null and !nonPostMedia.isEmpty()}"
+                        class="grid gap-1 rounded-xl overflow-hidden"
+                        th:classappend="${
+                          #lists.size(nonPostMedia) == 1 ? 'grid-cols-1' :
+                          #lists.size(nonPostMedia) == 2 ? 'grid-cols-2 w-3/4' :
+                          #lists.size(nonPostMedia) == 3 ? 'grid-cols-3' :
+                          #lists.size(nonPostMedia) == 4 ? 'grid-cols-2 w-3/4' :
+                          #lists.size(nonPostMedia) == 5 ? 'grid-cols-6' :
+                          #lists.size(nonPostMedia) == 6 ? 'grid-cols-3' :
+                          #lists.size(nonPostMedia) == 7 ? 'grid-cols-12' :
+                          #lists.size(nonPostMedia) == 8 ? 'grid-cols-6' : 'grid-cols-3'
+                        }">
+                      <th:block th:each="medium, stat : ${nonPostMedia}">
                         <div th:if="${medium.type.name == 'PHOTO' && stat.index < 9}" class="moment-grid-item"
                           th:classappend="${
-                            #lists.size(content.medium) == 3 && stat.index == 0 ? 'col-span-2 row-span-2 aspect-square' : 
-                            #lists.size(content.medium) == 3 && stat.index > 0 ? 'col-span-1 aspect-square' :
-                            #lists.size(content.medium) == 5 && stat.index < 2 ? 'col-span-3 aspect-[4/3]' : 
-                            #lists.size(content.medium) == 5 && stat.index >= 2 ? 'col-span-2 aspect-square' : 
-                            #lists.size(content.medium) == 7 && stat.index < 3 ? 'col-span-4 aspect-square' : 
-                            #lists.size(content.medium) == 7 && stat.index >= 3 ? 'col-span-3 aspect-square' : 
-                            #lists.size(content.medium) == 8 && stat.index < 2 ? 'col-span-3 aspect-[4/3]' : 
-                            #lists.size(content.medium) == 8 && stat.index >= 2 ? 'col-span-2 aspect-square' : 'aspect-square'
+                            #lists.size(nonPostMedia) == 3 && stat.index == 0 ? 'col-span-2 row-span-2 aspect-square' :
+                            #lists.size(nonPostMedia) == 3 && stat.index > 0 ? 'col-span-1 aspect-square' :
+                            #lists.size(nonPostMedia) == 5 && stat.index < 2 ? 'col-span-3 aspect-[4/3]' :
+                            #lists.size(nonPostMedia) == 5 && stat.index >= 2 ? 'col-span-2 aspect-square' :
+                            #lists.size(nonPostMedia) == 7 && stat.index < 3 ? 'col-span-4 aspect-square' :
+                            #lists.size(nonPostMedia) == 7 && stat.index >= 3 ? 'col-span-3 aspect-square' :
+                            #lists.size(nonPostMedia) == 8 && stat.index < 2 ? 'col-span-3 aspect-[4/3]' :
+                            #lists.size(nonPostMedia) == 8 && stat.index >= 2 ? 'col-span-2 aspect-square' : 'aspect-square'
                           }">
                           <img th:src="${medium.url}" alt="瞬间图片" loading="lazy" />
-                          <div th:if="${stat.index == 8 && #lists.size(content.medium) > 9}"
+                          <div th:if="${stat.index == 8 && #lists.size(nonPostMedia) > 9}"
                             class="absolute inset-0 bg-black/50 flex items-center justify-center" style="z-index:2">
                             <span class="text-white text-xl font-semibold"
-                              th:text="'+' + (${#lists.size(content.medium)} - 9)">+3</span>
+                              th:text="'+' + (${#lists.size(nonPostMedia)} - 9)">+3</span>
                           </div>
                         </div>
+                        <video th:if="${medium.type.name == 'VIDEO'}" th:src="${medium.url}" controls
+                          preload="metadata" class="col-span-full rounded-xl max-h-72 w-full">
+                        </video>
+                        <div th:if="${medium.type.name == 'AUDIO'}" class="col-span-full bg-base-200 rounded-xl p-3">
+                          <audio th:src="${medium.url}" controls class="w-full"></audio>
+                        </div>
                       </th:block>
-                    </div>
+                      </div>
+                      <div th:if="${postMedia != null and !postMedia.isEmpty()}" class="mt-2 space-y-2">
+                        <th:block th:each="medium : ${postMedia}">
+                          <th:block th:replace="~{modules/moments/post-media :: post-card(${medium}, false)}" />
+                        </th:block>
+                      </div>
+                    </th:block>
                   </div>
 
                   <!-- 标签 -->
