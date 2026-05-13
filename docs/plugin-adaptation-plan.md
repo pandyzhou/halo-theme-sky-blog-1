@@ -85,9 +85,27 @@ pnpm verify:plugins:deep
 - 对 Photos、Moments、Docsme 这类含富文本/图片/评论的页面，确认脚本只初始化一次。
 - Passkey 真实登录、Moments 真实发布和上传属于带状态操作；如果主题模板未修改，优先复用站点手工验收结果，不在自动脚本里写入内容或改变认证状态。
 
+### 当前浏览器验收记录
+
+2026-05-13 在本地 Halo `http://localhost:8090` 用真实浏览器完成以下不改数据的交互复验：
+
+| 项目              | 验收入口                                                               | 结果                                                       |
+| ----------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
+| PJAX 页面切换     | `/` → `/moments` → `/docs`                                             | URL、标题和页面主体按预期切换，`window.SkyPjax` 可用       |
+| Docsme 目录到详情 | `/docs/halo-theme-sky-blog-1/theme-settings` → `theme-settings/global` | 目录页和子文档均可打开，评论区域正常出现                   |
+| Search Widget     | 首页搜索按钮 / `SearchWidget.open()`                                   | `PluginSearchWidget v1.7.1` 注入，搜索弹窗可打开           |
+| Shiki             | `/archives/editor-feature-demo`                                        | 页面存在 `shiki-code`，代码块由 `plugin-shiki v1.3.0` 接管 |
+| Comment Widget    | `/archives/editor-feature-demo`、Docsme 文档详情                       | 评论区域文案出现，插件脚本注入正常                         |
+| lightgallery      | `/moments`                                                             | 点击瞬间图片后 lightgallery 容器打开                       |
+| 暗色切换          | 首页顶部主题按钮                                                       | `html[data-color-scheme]` 可从 `dark` 切到 `light`         |
+| 移动端基础布局    | 首页 `390x844` 视口                                                    | 无横向溢出，首页插件模块仍可见                             |
+
+浏览器控制台出现过天气服务外部接口 504 / fallback 日志，属于天气数据源降级，不属于本轮插件适配阻塞项。
+
 ## 剩余事项
 
-1. 继续保留基础 smoke 与深度 smoke 双层验证，避免把数据依赖页面塞进默认命令导致普通本地环境误报。
+1. 继续保留基础 smoke、深度 smoke 与浏览器验收三层验证，避免把数据依赖页面塞进默认命令导致普通本地环境误报。
 2. Bangumi、Steam、Equipment 维持现有页面回归；Douban 按本轮要求暂缓。
 3. Alist 存储在插件或 Halo 版本更新后需要单独复测，不作为 Moments 上传的推荐后端。
-4. Passkey 真实登录、Moments 真实发布/上传只在需要改认证或发布模板时重新跑完整手测。
+4. Passkey 真实登录、Moments 真实发布/上传属于会改变认证或内容状态的流程，只在需要改认证或发布模板时重新跑完整手测。
+5. 天气外部接口偶发 504 会污染浏览器控制台，需要后续单独做数据源超时/降级噪声治理。
