@@ -1691,7 +1691,7 @@ spec:
         - $formkit: group
           name: docs_settings
           label: 文档中心模块
-          help: 需安装 Docsme 文档插件 (plugin-docsme) ≥1.4.0
+          help: 需安装 Docsme 文档插件 (plugin-docsme) ≥1.4.0；免费版请安装应用市场 1.5.0 免授权版本，专业版/商业版可使用 1.6.0
           value:
             enable_docs: true
             docs_title: "文档中心"
