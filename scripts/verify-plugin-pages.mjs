@@ -89,7 +89,12 @@ const deepChecks = [
   {
     name: "Docsme Catalog",
     path: envPath("DOC_CATALOG_URL", "/docs/halo-theme-sky-blog-1/theme-settings"),
-    markers: ["doc-layout", "主题配置功能详解", "plugin-docsme 免费版 1.5.0 / 专业版 1.6.0"],
+    markers: [
+      "doc-layout",
+      "主题配置功能详解",
+      "plugin-docsme 免费版 1.5.0 / 专业版 1.6.0",
+      "var docsme = { disableThemeFunction: true }",
+    ],
     match: "all",
   },
   {
@@ -124,6 +129,24 @@ const deepChecks = [
   },
 ];
 
+const deepApiChecks = [
+  {
+    name: "Douban Genres API",
+    path: "/apis/api.douban.moony.la/v1alpha1/doubanmovies/-/genres",
+    validate(data) {
+      const genres = Array.isArray(data)
+        ? data.map((genre) => (typeof genre === "string" ? genre : genre?.name)).filter(Boolean)
+        : [];
+
+      return {
+        ok: genres.length > 0,
+        marker: genres.slice(0, 6).join(", ") || "-",
+        error: "genre data not found",
+      };
+    },
+  },
+];
+
 for (const optional of optionalChecks) {
   const path = process.env[optional.env];
   if (path) {
@@ -154,6 +177,26 @@ async function fetchWithTimeout(url) {
         Accept: "text/html,application/xhtml+xml",
       },
     });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchJsonWithTimeout(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const data = await response.json();
+    return {
+      response,
+      data,
+    };
   } finally {
     clearTimeout(timeout);
   }
@@ -205,6 +248,34 @@ for (const check of checks) {
       ok: false,
       error: error?.name === "AbortError" ? `timeout after ${timeoutMs}ms` : error.message,
     });
+  }
+}
+
+if (deepMode) {
+  for (const check of deepApiChecks) {
+    const url = resolveUrl(check.path);
+    try {
+      const { response, data } = await fetchJsonWithTimeout(url);
+      const validation = check.validate(data);
+      const ok = response.status === 200 && validation.ok;
+      results.push({
+        ...check,
+        url,
+        status: response.status,
+        marker: validation.marker || "-",
+        ok,
+        error: ok ? "" : validation.ok ? `unexpected status ${response.status}` : validation.error,
+      });
+    } catch (error) {
+      results.push({
+        ...check,
+        url,
+        status: "-",
+        marker: "-",
+        ok: false,
+        error: error?.name === "AbortError" ? `timeout after ${timeoutMs}ms` : error.message,
+      });
+    }
   }
 }
 

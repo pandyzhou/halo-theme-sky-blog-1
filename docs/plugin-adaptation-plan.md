@@ -69,13 +69,13 @@ SMOKE_BASE_URL=http://localhost:8091 pnpm verify:plugins
 PHOTO_DETAIL_URL=/photos/{photoName} MOMENT_DETAIL_URL=/moments/{momentName} DOC_DETAIL_URL=/docs/{project}/{doc} pnpm verify:plugins
 ```
 
-深度 smoke 会额外检查首页插件组件、Docsme 目录页、文章代码块 Shiki、评论组件、搜索组件、Moments lightgallery 和作者页 Moments 区块：
+深度 smoke 会额外检查首页插件组件、Docsme 目录页、文章代码块 Shiki、评论组件、搜索组件、Moments lightgallery、作者页 Moments 区块和 Douban 真实题材接口：
 
 ```bash
 pnpm verify:plugins:deep
 ```
 
-深度 smoke 的默认路径按当前本地测试数据设置。其他站点可通过 `HOME_URL`、`DOC_CATALOG_URL`、`ARTICLE_CODE_URL`、`COMMENT_PAGE_URL`、`SEARCH_PAGE_URL`、`LIGHTGALLERY_PAGE_URL`、`AUTHOR_URL` 覆盖。
+深度 smoke 的默认路径按当前本地测试数据设置。其他站点可通过 `HOME_URL`、`DOC_CATALOG_URL`、`ARTICLE_CODE_URL`、`COMMENT_PAGE_URL`、`SEARCH_PAGE_URL`、`LIGHTGALLERY_PAGE_URL`、`AUTHOR_URL` 覆盖。Douban 题材接口属于数据级检查，要求当前站点已有至少一个题材数据；没有同步豆瓣数据的环境只运行基础 smoke。
 
 ### 浏览器人工验收
 
@@ -103,6 +103,8 @@ pnpm verify:plugins:deep
 Search Widget 进一步输入复验时，插件搜索接口 `/apis/api.halo.run/v1alpha1/indices/-/search` 能正常返回结果；当前本地索引包含 `/archives/hello-halo`、`/archives/ce-shi` 等已不存在文章，点击会进入 404。该问题属于本地搜索索引/内容数据需要重建，不是主题模板适配缺口。
 
 浏览器控制台出现过天气服务外部接口 504 / fallback 日志，属于天气数据源降级，不属于本轮插件适配阻塞项。
+
+Douban 封面图片当前由 `spec.poster` 提供。如果插件返回 `img*.doubanio.com` 直链，浏览器可能收到远端 `418`；主题只做加载失败占位兜底，真实封面显示应在 `plugin-douban` 设置中启用 `isProxy / proxyHost`，不要在主题里硬编码第三方代理。
 
 ## 剩余事项
 
