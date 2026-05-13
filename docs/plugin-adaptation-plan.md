@@ -19,7 +19,7 @@
 | Batch 1 | 内容核心页     | Links `v1.7.2`、Photos `v2.1.0`、Moments `v1.16.0`、Friends `v1.4.5`、Docsme 免费版 `1.5.0` / 专业版 `1.6.0` | 已补 Docsme 目录脚本与 0 篇文档项目禁用态、Moments POST 渲染；Links 当前契约正确，无需查询逻辑改造 | `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/login` |
 | Batch 2 | 扩展内容页     | Bangumi `1.4.0`、Steam `0.3.0`、Equipment `v1.1.1`、Douban `v1.2.5`                                          | Bangumi/Steam/Equipment 已有页面；Douban 本轮暂缓，不新增主题页                                    | `/bangumis`、`/steam`、`/equipments`                           |
 | Batch 3 | 工具链插件     | Search Widget `v1.7.1`、Comment Widget `v3.1.1`、Shiki `v1.3.0`、lightgallery、Text Diagram、Vote            | 已完成当前 Chrome 实看；深度 smoke 覆盖搜索入口、评论脚本、Shiki 注入和 lightgallery 绑定          | 导航搜索、文章评论、文档代码块、图库/瞬间图片                  |
-| Batch 4 | 认证与发布链路 | Passkey `v1.0.4`、link-submit、存储插件                                                                      | 登录表单保留 `halo-form`，友链提交弹窗已补评论留言兜底；Alist 标记为存储兼容风险                   | `/login`、`/links` 申请弹窗、`/moments` 发布弹窗               |
+| Batch 4 | 认证与发布链路 | Passkey `v1.0.4`、link-submit、存储插件                                                                      | 登录表单保留 `halo-form`，友链提交弹窗已补评论留言兜底；Alist 标记为不可用                         | `/login`、`/links` 申请弹窗、`/moments` 发布弹窗               |
 
 ## 插件契约矩阵
 
@@ -38,7 +38,7 @@
 | Comment Widget | 各页面 `<halo:comment>`                                                                                               | Halo 评论组件                                                                                 | 评论 subject 必须使用对应插件 group/kind/name                                                                                              |
 | Shiki          | 文章页/文档页内容区                                                                                                   | 插件 head 注入与内容处理                                                                      | 主题只处理暗亮色和 PJAX 后渲染，不引入新的代码高亮库                                                                                       |
 | Passkey        | `templates/login.html`、`templates/gateway_fragments/login.html`                                                      | 插件认证提供者片段                                                                            | 登录表单必须保留 `.halo-form` 和动态 `fragmentTemplateName`                                                                                |
-| Alist 存储     | 文档标记；瞬间发布使用 Halo UC 附件 API                                                                               | `plugin-alist` 附件存储策略                                                                   | 当前不列为可用存储后端；应用市场最新 `1.1.3` 仍需单独复测较新 Halo 版本下的附件 `status` / 预览链接兼容性                                  |
+| Alist 存储     | 文档标记；瞬间发布使用 Halo UC 附件 API                                                                               | `plugin-alist` 附件存储策略                                                                   | 当前主题直接标记不可用；不作为 Moments 上传后端，也不安排真实上传复测                                                                      |
 
 ## 每批测试标准
 
@@ -106,6 +106,6 @@ pnpm verify:plugins:deep
 
 1. 继续保留基础 smoke、深度 smoke 与浏览器验收三层验证，避免把数据依赖页面塞进默认命令导致普通本地环境误报。
 2. Bangumi、Steam、Equipment 维持现有页面回归；Douban 按本轮要求暂缓。
-3. Alist 存储在插件或 Halo 版本更新后需要单独复测，不作为 Moments 上传的推荐后端。
+3. Alist 存储直接标记不可用，不再安排真实上传复测；Moments 上传使用本地存储或 S3。
 4. Passkey 真实登录、Moments 真实发布/上传属于会改变认证或内容状态的流程，只在需要改认证或发布模板时重新跑完整手测。
 5. 天气外部接口偶发 504 会污染浏览器控制台，需要后续单独做数据源超时/降级噪声治理。
