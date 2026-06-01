@@ -29,6 +29,63 @@
   }
 
   /**
+   * HTTPS 页面中归一化旧内容里的 HTTP 子资源地址。
+   * 主要处理历史文章里保存的内网 Halo 地址，例如 http://192.168.x.x:8090/upload/...
+   */
+  function normalizeInsecureContentUrls() {
+    if (window.location.protocol !== 'https:') return;
+
+    const content = document.getElementById('article-content');
+    if (!content) return;
+
+    const localHostPattern = /^(localhost|127\.0\.0\.1|0\.0\.0\.0|10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/;
+    const mediaSelector = 'img[src], source[src], video[src], audio[src], iframe[src], embed[src]';
+
+    function normalizeUrl(value) {
+      if (!value || !/^http:\/\//i.test(value)) return value;
+
+      try {
+        const url = new URL(value);
+        if (url.hostname === window.location.hostname || localHostPattern.test(url.hostname)) {
+          return `${window.location.origin}${url.pathname}${url.search}${url.hash}`;
+        }
+        url.protocol = 'https:';
+        return url.toString();
+      } catch {
+        return value.replace(/^http:\/\//i, 'https://');
+      }
+    }
+
+    content.querySelectorAll(mediaSelector).forEach(function(el) {
+      const next = normalizeUrl(el.getAttribute('src'));
+      if (next && next !== el.getAttribute('src')) {
+        el.setAttribute('src', next);
+      }
+    });
+
+    content.querySelectorAll('[poster]').forEach(function(el) {
+      const next = normalizeUrl(el.getAttribute('poster'));
+      if (next && next !== el.getAttribute('poster')) {
+        el.setAttribute('poster', next);
+      }
+    });
+
+    content.querySelectorAll('[srcset]').forEach(function(el) {
+      const srcset = el.getAttribute('srcset');
+      if (!srcset || !srcset.includes('http://')) return;
+
+      const normalized = srcset.split(',').map(function(part) {
+        const trimmed = part.trim();
+        const firstSpace = trimmed.search(/\s/);
+        if (firstSpace === -1) return normalizeUrl(trimmed);
+        return `${normalizeUrl(trimmed.slice(0, firstSpace))}${trimmed.slice(firstSpace)}`;
+      }).join(', ');
+
+      el.setAttribute('srcset', normalized);
+    });
+  }
+
+  /**
    * 外部链接处理
    * 为外部链接添加 target="_blank" 和 rel="noopener noreferrer"
    */
@@ -90,6 +147,7 @@
    * 初始化所有文章内容处理
    */
   function initArticleContent() {
+    normalizeInsecureContentUrls();
     setupContentLazyLoad();
     setupExternalLinks();
     initAdmonitionGlow();

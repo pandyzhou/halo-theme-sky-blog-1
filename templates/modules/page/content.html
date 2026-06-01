@@ -12,7 +12,8 @@
   <div class="divider"></div>
 
   <!-- 文章内容 -->
-  <div id="article-content" th:utext="${singlePage.content.content}">
+  <div id="article-content"
+    th:utext="${#strings.replace(#strings.replace(#strings.replace(singlePage.content.content, 'http://192.168.1.23:8090', ''), 'http://localhost:8090', ''), 'http://127.0.0.1:8090', '')}">
     <p>页面内容...</p>
   </div>
 

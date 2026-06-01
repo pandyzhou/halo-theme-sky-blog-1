@@ -91,7 +91,7 @@
           <div class="flex flex-shrink-0 items-center gap-1.5 sm:gap-2">
             <!-- 搜索功能：兼容 PluginSearchWidget v1.7.1，入口只调用全局 SearchWidget.open()。 -->
             <div
-              th:if="${theme.config.nav.right_settings.show_search and pluginFinder.available('PluginSearchWidget')}"
+              th:if="${theme.config.nav.right_settings.show_search and pluginFinder.available('PluginSearchWidget', '>=1.7.1')}"
             >
               <button
                 type="button"

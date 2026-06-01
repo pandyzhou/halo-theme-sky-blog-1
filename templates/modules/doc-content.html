@@ -83,7 +83,8 @@
 
       <!-- 文档正文内容 -->
       <article class="doc-article">
-        <div id="article-content" class="prose prose-lg max-w-none" th:utext="${docInfo.content.content}">
+        <div id="article-content" class="prose prose-lg max-w-none"
+          th:utext="${#strings.replace(#strings.replace(#strings.replace(docInfo.content.content, 'http://192.168.1.23:8090', ''), 'http://localhost:8090', ''), 'http://127.0.0.1:8090', '')}">
           文档内容
         </div>
       </article>
