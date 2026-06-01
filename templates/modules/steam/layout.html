@@ -42,7 +42,7 @@
                  bgClass = ${enableCustomBg ? (bgStyle == 'grid' ? 'bg-base-100' : 'bg-' + bgStyle) : 'bg-base-200'}"
     th:class="'min-h-screen text-base-content relative ' + ${bgClass}"
     x-data="{ gameBg: null }"
-    x-init="fetch('/apis/api.steam.timxs.com/v1alpha1/profile').then(r => r.json()).then(d => { if(d.playing && d.summary?.gameid) gameBg = d.summary.gameid; }).catch(() => {})"
+    x-init="(async () => { for (const url of ['/apis/api.steam.timxs.com/v1alpha1/profile', '/apis/api.steam.halo.run/v1alpha1/profile']) { try { const r = await fetch(url); if (!r.ok) continue; const d = await r.json(); const gameId = d.summary?.gameId || d.summary?.gameid; if (d.playing && gameId) gameBg = gameId; break; } catch {} } })()"
   >
     <!-- 动态游戏背景 (正在游玩时显示，异步加载) -->
     <div x-show="gameBg" x-cloak class="pointer-events-none fixed inset-0 z-0">

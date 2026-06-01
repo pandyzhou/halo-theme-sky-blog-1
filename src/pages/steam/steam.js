@@ -19,6 +19,10 @@ import {
 // 缓存配置
 const CACHE_KEY = 'steam_page_cache';
 const CACHE_TTL = 3 * 60 * 1000; // 3分钟
+const API_BASES = [
+  '/apis/api.steam.timxs.com/v1alpha1',
+  '/apis/api.steam.halo.run/v1alpha1'
+];
 
 /**
  * 缓存管理
@@ -61,13 +65,25 @@ async function fetchAPI(endpoint, useCache = true) {
     if (cached) return cached;
   }
 
-  const response = await fetch(`/apis/api.steam.timxs.com/v1alpha1${endpoint}`);
-
-  if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-  const data = await response.json();
+  const data = await fetchSteamEndpoint(endpoint);
   if (useCache) cache.set(cacheKey, data);
   return data;
+}
+
+async function fetchSteamEndpoint(endpoint) {
+  let lastError;
+
+  for (const base of API_BASES) {
+    try {
+      const response = await fetch(`${base}${endpoint}`);
+      if (response.ok) return await response.json();
+      lastError = new Error(`API error: ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('Steam API unavailable');
 }
 
 /**
@@ -238,7 +254,7 @@ function setupImageHandlers(img) {
         return;
       }
       this.classList.add('loaded');
-      this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 215"%3E%3Crect fill="%231b2838" width="460" height="215"/%3E%3Ctext x="50%25" y="50%25" fill="%2366c0f4" font-size="24" text-anchor="middle" dy=".3em"%3E🎮%3C/text%3E%3C/svg%3E';
+      this.src = 'data:image/svg+xml,%3Csvg viewBox="0 0 460 215"%3E%3Crect fill="%231b2838" width="460" height="215"/%3E%3Ctext x="50%25" y="50%25" fill="%2366c0f4" font-size="24" text-anchor="middle" dy=".3em"%3E🎮%3C/text%3E%3C/svg%3E';
     });
   }
 }
@@ -302,15 +318,29 @@ async function fetchHeatmapData(baseUrl, days) {
     return `${year}-${month}-${day}`;
   };
 
-  const url = new URL(baseUrl, window.location.origin);
-  url.searchParams.set('startDate', formatDate(startDate));
-  url.searchParams.set('endDate', formatDate(endDate));
-  url.searchParams.set('page', '1');
-  url.searchParams.set('size', days);
+  const urls = [baseUrl];
+  if (baseUrl.includes('/apis/api.steam.halo.run/')) {
+    urls.push(baseUrl.replace('/apis/api.steam.halo.run/', '/apis/api.steam.timxs.com/'));
+  }
 
-  const response = await fetch(url.toString());
-  if (!response.ok) throw new Error('Failed to fetch heatmap data');
-  return await response.json();
+  let lastError;
+  for (const apiUrl of urls) {
+    const url = new URL(apiUrl, window.location.origin);
+    url.searchParams.set('startDate', formatDate(startDate));
+    url.searchParams.set('endDate', formatDate(endDate));
+    url.searchParams.set('page', '1');
+    url.searchParams.set('size', days);
+
+    try {
+      const response = await fetch(url.toString());
+      if (response.ok) return await response.json();
+      lastError = new Error(`Failed to fetch heatmap data: ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError || new Error('Failed to fetch heatmap data');
 }
 
 function renderCustomHeatmap(container, dateMap, days, tooltip) {

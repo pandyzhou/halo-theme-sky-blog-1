@@ -71,9 +71,10 @@
 
 ### 兼容性
 
-- ✅ 支持 Steam 插件 v0.3.0
+- ✅ 支持 Steam 插件 v0.4.0
 - ✅ 异步加载游戏数据
 - ✅ 字段兼容性处理
+- ✅ 当前运行态优先使用 `/apis/api.steam.timxs.com/v1alpha1`，并兼容文档中的 `/apis/api.steam.halo.run/v1alpha1`
 
 ### 数据刷新
 

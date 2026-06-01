@@ -3,7 +3,7 @@
 
 <!-- ========================================== -->
 <!--        Steam 游戏库主体内容 (异步加载)      -->
-<!-- 兼容基线：halo-plugin-steam v0.3.0；客户端消费 /apis/api.steam.timxs.com/v1alpha1/*。 -->
+<!-- 兼容基线：halo-plugin-steam v0.4.0；当前运行态优先消费 /apis/api.steam.timxs.com/v1alpha1/*，并兼容文档中的 /apis/api.steam.halo.run/v1alpha1/*。 -->
 <!-- ========================================== -->
 
 <main class="steam-page relative" th:fragment="steam-content" x-data="steamPage()" x-init="init()">
@@ -40,12 +40,13 @@
         <!-- Profile Header - 实际内容 -->
         <div x-show="!loading.profile && profile" x-cloak class="steam-profile-header">
           <div class="steam-profile-avatar" :class="profile?.playing ? 'playing' : ''">
-            <img :src="profile?.summary?.avatarfull" :alt="profile?.summary?.personaname" loading="eager"
+            <img :src="profile?.summary?.avatarFull || profile?.summary?.avatarfull || profile?.summary?.avatar"
+              :alt="profile?.summary?.personaName || profile?.summary?.personaname" loading="eager"
               decoding="async" class="steam-avatar-img" />
           </div>
           <div class="steam-profile-info">
             <div class="flex items-center gap-2">
-              <h1 class="steam-profile-name" x-text="profile?.summary?.personaname">Steam User</h1>
+              <h1 class="steam-profile-name" x-text="profile?.summary?.personaName || profile?.summary?.personaname || 'Steam User'">Steam User</h1>
               <!-- Level Badge -->
               <span class="badge badge-outline gap-1 font-mono"
                 :class="(badges?.playerLevel || profile?.steamLevel || 0) >= 100 ? 'badge-warning' : 'badge-neutral'"
@@ -58,7 +59,7 @@
             <!-- Status -->
             <div class="steam-status-subtitle flex items-center gap-2 text-sm mt-1">
               <span class="w-2 h-2 rounded-full"
-                :class="profile?.playing ? 'bg-success' : (profile?.summary?.personastate == 1 ? 'bg-info' : 'bg-base-content/30')"></span>
+                :class="profile?.playing ? 'bg-success' : ((profile?.summary?.personaState ?? profile?.summary?.personastate) == 1 ? 'bg-info' : 'bg-base-content/30')"></span>
               <span x-text="profile?.statusText" class="opacity-70">在线</span>
             </div>
           </div>
@@ -190,8 +191,8 @@
 
       <!-- 实际内容 -->
       <div x-show="!loading.recent && recentGames.length > 0" x-cloak class="steam-library-grid">
-        <template x-for="(game, idx) in recentGames.filter(g => g.appid).slice(0, 10)" :key="game.appid + '-' + idx">
-          <a :href="'https://store.steampowered.com/app/' + game.appid" target="_blank" class="steam-game-card">
+        <template x-for="(game, idx) in recentGames.filter(g => (g.appid || g.appId)).slice(0, 10)" :key="(game.appid || game.appId) + '-' + idx">
+          <a :href="'https://store.steampowered.com/app/' + (game.appid || game.appId)" target="_blank" class="steam-game-card">
             <div class="steam-game-card-image">
               <img :src="game.headerImageUrl" :alt="game.name" loading="lazy" decoding="async" class="steam-game-img" />
             </div>

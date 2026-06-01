@@ -61,7 +61,7 @@
 pnpm verify:plugins
 ```
 
-默认检查 `http://localhost:8090` 下的 `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/bangumis`、`/steam`、`/equipments`、`/login`。
+默认检查 `http://localhost:8090` 下的 `/links`、`/photos`、`/moments`、`/friends`、`/docs`、`/bangumis`、`/steam`、`/equipments`、`/login`。当前实测插件组合要求 `/friends` 返回 200，不能再按跳过处理。
 
 如需复验首页插件组件、Docsme 目录页、Shiki、评论、搜索、lightgallery 与作者页 Moments，可执行：
 
@@ -75,6 +75,8 @@ pnpm verify:plugins:deep
 >
 > - ✅ **关闭加载资源**（主题已内置样式）
 > - ✅ **开启邮件通知**（及时收到友链申请）
+
+当前实测可用组合为 `PluginLinks v2.0.0` + `link-submit v1.0.7`。`PluginLinks v2.1.0` 会导致 `link-submit` 出现 Jackson `ObjectMapper` 类加载冲突。验收时以 `site-info-modal`、`link-submit-modal`、`links-comments` 和 `PluginLinks v2.0.0` 分组渲染为稳定证据。
 
 ---
 
@@ -100,8 +102,7 @@ pnpm verify:plugins:deep
 | ------------------------------ | ------------------------ | -------------------------------------------------------------------------------------- |
 | 文档首页 / 内容页 / 目录页模板 | 跟随 Docsme 官方页面协议 | 主题提供 `docs.html`、`doc.html`、`doc-catalog.html` 覆盖模板                          |
 | 首页文档中心模块               | `plugin-docsme >=1.4.0`  | 使用 `docsmeProjectsFinder` 查询文档项目；这是最低 Finder 能力，不代表当前建议安装版本 |
-| 免费版安装                     | `1.5.0` 免授权版本       | 当前免费版适配基线                                                                     |
-| 专业版/商业版安装              | `1.6.0`                  | 当前专业版适配基线                                                                     |
+| 当前适配基线                   | `1.7.0`                  | 当前主题按 Docsme 1.7.0 页面协议和插件脚本复验                                         |
 
 ---
 
@@ -202,7 +203,7 @@ pnpm verify:plugins:deep
 
 **兼容版本**：
 
-- ✅ Steam 插件 v0.3.0
+- ✅ Steam 插件 v0.4.0，当前运行态优先使用 `/apis/api.steam.timxs.com/v1alpha1`，兼容文档中的 `/apis/api.steam.halo.run/v1alpha1`
 
 ---
 

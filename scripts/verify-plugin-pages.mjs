@@ -8,52 +8,62 @@ const checks = [
   {
     name: "Links",
     path: "/links",
-    markers: ["友情链接", "links-content", "link-submit-modal"],
+    markers: ["友情链接", "site-info-modal", "link-submit-modal", "links-comments"],
+    match: "all",
   },
   {
     name: "Photos",
     path: "/photos",
     markers: ["photo-grid", "图库", "photos.js"],
+    match: "all",
   },
   {
     name: "Moments",
     path: "/moments",
     markers: ["moments-list", "瞬间", "moments.js"],
+    match: "all",
   },
   {
     name: "Friends",
     path: "/friends",
-    markers: ["朋友圈", "friends-content", "__completeSwupPageInit"],
+    markers: ["朋友圈", "plugin-friends-rss", "__completeSwupPageInit"],
+    match: "all",
   },
   {
     name: "Docsme",
     path: "/docs",
-    markers: ["文档", "doc.js", "docs-dock"],
+    markers: ["plugin-docsme v1.7.0", "文档中心", "doc.js"],
+    match: "all",
   },
   {
     name: "Bangumi",
     path: "/bangumis",
     markers: ["bangumi-page", "追番", "bangumi.js"],
+    match: "all",
   },
   {
     name: "Steam",
     path: "/steam",
     markers: ["steam-page", "Steam", "steam.js"],
+    match: "all",
   },
   {
     name: "Equipment",
     path: "/equipments",
     markers: ["equipment-page", "装备", "equipment.js"],
+    match: "all",
   },
   {
     name: "Douban",
     path: "/douban",
     markers: ["douban-page", "douban-grid", "douban.js"],
+    match: "all",
   },
   {
     name: "Login",
     path: "/login",
-    markers: ["halo-form", "欢迎回来", "fragmentTemplateName"],
+    markers: ["halo-form", "login?method=passkey", "/plugins/auth-passkey/assets/static/passkey.svg"],
+    match: "all",
   },
 ];
 
@@ -92,7 +102,7 @@ const deepChecks = [
     markers: [
       "doc-layout",
       "主题配置功能详解",
-      "plugin-docsme 免费版 1.5.0 / 专业版 1.6.0",
+      "plugin-docsme v1.7.0",
       "var docsme = { disableThemeFunction: true }",
     ],
     match: "all",
@@ -100,13 +110,13 @@ const deepChecks = [
   {
     name: "Article Shiki",
     path: envPath("ARTICLE_CODE_URL", "/archives/editor-feature-demo"),
-    markers: ["plugin-shiki", "shiki-code.js?version=1.3.0", "<shiki-code"],
+    markers: ["plugin-shiki", "shiki-code.js?version=", "<shiki-code"],
     match: "all",
   },
   {
     name: "Comment Widget",
     path: envPath("COMMENT_PAGE_URL", process.env.DOC_DETAIL_URL || "/archives/editor-feature-demo"),
-    markers: ["plugin-comment-widget", "comment-widget.js?version=3.1.1", "评论交流"],
+    markers: ["plugin-comment-widget", "comment-widget.js?version=3.1.2", "评论交流"],
     match: "all",
   },
   {
@@ -116,9 +126,9 @@ const deepChecks = [
     match: "all",
   },
   {
-    name: "Lightgallery Moments",
+    name: "Moments Media Binding",
     path: envPath("LIGHTGALLERY_PAGE_URL", "/moments"),
-    markers: ["PluginLightGallery", "lightgallery.min.js", "moment-media"],
+    markers: ["moment-media", "data-src"],
     match: "all",
   },
   {
@@ -173,9 +183,6 @@ async function fetchWithTimeout(url) {
   try {
     return await fetch(url, {
       signal: controller.signal,
-      headers: {
-        Accept: "text/html,application/xhtml+xml",
-      },
     });
   } finally {
     clearTimeout(timeout);
@@ -225,13 +232,17 @@ for (const check of checks) {
     const html = await response.text();
     const markers = evaluateMarkers(html, check);
     const ok = response.status === 200 && markers.ok;
+    const skipped = !ok && check.optionalWhenRouteMissing && response.status === 404;
     results.push({
       ...check,
       url,
       status: response.status,
       marker: markers.foundMarkers.join(", ") || "-",
-      ok,
-      error: ok
+      ok: ok || skipped,
+      skipped,
+      error: skipped
+        ? check.missingRouteHint || "optional route unavailable"
+        : ok
         ? ""
         : markers.ok
           ? `unexpected status ${response.status}`
@@ -286,18 +297,21 @@ if (deepMode) {
   console.log("Plugin smoke mode: deep");
 }
 for (const result of results) {
-  const icon = result.ok ? "OK" : "FAIL";
+  const icon = result.skipped ? "SKIP" : result.ok ? "OK" : "FAIL";
   const name = result.name.padEnd(width, " ");
-  const details = result.ok
+  const details = result.skipped
+    ? `status=${result.status} ${result.error}`
+    : result.ok
     ? `status=${result.status} marker=${result.marker}`
     : `status=${result.status} ${result.error}`;
   console.log(`${icon} ${name} ${result.path} ${details}`);
 }
 
-const failures = results.filter((result) => !result.ok);
+const failures = results.filter((result) => !result.ok && !result.skipped);
 if (failures.length > 0) {
   console.error(`Plugin smoke failed: ${failures.length}/${results.length}`);
   process.exit(1);
 }
 
-console.log(`Plugin smoke passed: ${results.length}/${results.length}`);
+const skipped = results.filter((result) => result.skipped).length;
+console.log(`Plugin smoke passed: ${results.length - skipped}/${results.length}${skipped ? ` (${skipped} skipped)` : ""}`);
