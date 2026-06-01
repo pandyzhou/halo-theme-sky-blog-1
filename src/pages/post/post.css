@@ -91,76 +91,27 @@ html[data-color-scheme="dark"] ai-summary-widget {
 .post-copyright-notice {
   position: relative;
   overflow: hidden;
-  box-shadow:
-    0 18px 42px -34px color-mix(in srgb, var(--color-base-content) 28%, transparent),
-    0 1px 0 color-mix(in srgb, var(--color-white, #fff) 38%, transparent) inset;
 }
 
-.post-copyright-notice::before {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-white, #fff) 18%, transparent), transparent 46%);
+.post-copyright-notice__line {
+  margin: 0;
 }
 
-.post-copyright-notice__mark {
-  display: inline-flex;
-  width: 2rem;
-  height: 2rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  color: color-mix(in srgb, var(--color-base-content) 56%, transparent);
-  background: color-mix(in srgb, var(--color-base-content) 5%, var(--color-base-100));
-  border: 1px solid color-mix(in srgb, var(--color-base-content) 7%, transparent);
-  border-radius: 9999px;
-  box-shadow: 0 10px 24px -20px color-mix(in srgb, var(--color-base-content) 40%, transparent);
+.post-copyright-notice__label {
+  color: color-mix(in srgb, var(--color-base-content) 46%, transparent);
 }
 
-.post-copyright-notice__badge,
-.post-copyright-notice__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  max-width: 100%;
-  border: 1px solid color-mix(in srgb, var(--color-base-content) 6%, transparent);
-  background: color-mix(in srgb, var(--color-base-content) 3%, transparent);
-  color: color-mix(in srgb, var(--color-base-content) 55%, transparent);
-  backdrop-filter: blur(12px);
+.post-copyright-notice__link {
+  color: color-mix(in srgb, var(--color-primary) 78%, var(--color-base-content));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 24%, transparent);
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
-.post-copyright-notice__badge {
-  min-height: 1.5rem;
-  padding: 0.125rem 0.625rem;
-  border-radius: 9999px;
-  color: color-mix(in srgb, var(--color-base-content) 62%, transparent);
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.post-copyright-notice__meta {
-  padding-top: 0.875rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-base-content) 6%, transparent);
-}
-
-.post-copyright-notice__chip {
-  min-height: 1.75rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-}
-
-.post-copyright-notice__chip--wide {
-  flex: 1 1 14rem;
-  justify-content: flex-start;
-  border-style: dashed;
-}
-
-@media (max-width: 640px) {
-  .post-copyright-notice__chip--wide {
-    flex-basis: 100%;
-  }
+.post-copyright-notice__link:hover {
+  color: var(--color-primary);
+  text-decoration-color: color-mix(in srgb, var(--color-primary) 58%, transparent);
 }
 
 /* ===================================================

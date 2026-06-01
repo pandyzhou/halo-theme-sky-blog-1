@@ -1,0 +1,117 @@
+<!doctype html>
+<html xmlns:th="https://www.thymeleaf.org">
+  <th:block
+    th:fragment="notice"
+    th:with="copyrightNotice=${theme.config.article.copyright_notice},
+  postNoticeMode=${post.metadata.annotations?.get('copyrightNoticeMode') ?: 'inherit'},
+  usePostNotice=${postNoticeMode == 'custom'},
+  noticeEnabled=${postNoticeMode == 'hide' ? false : (postNoticeMode == 'show' or postNoticeMode == 'custom' ? true : copyrightNotice?.enable != false)},
+  defaultNoticeType=${copyrightNotice != null and copyrightNotice.type != null and !copyrightNotice.type.isEmpty() ? copyrightNotice.type : 'original'},
+  noticeType=${usePostNotice and post.metadata.annotations?.get('copyrightNoticeType') != null and !post.metadata.annotations?.get('copyrightNoticeType').isEmpty() ? post.metadata.annotations?.get('copyrightNoticeType') : defaultNoticeType},
+  postNoticeWorkTitle=${post.metadata.annotations?.get('copyrightNoticeWorkTitle')},
+  postNoticeSourceTitle=${post.metadata.annotations?.get('copyrightNoticeSourceTitle')},
+  postNoticeSourceUrl=${post.metadata.annotations?.get('copyrightNoticeSourceUrl')},
+  postNoticeSourceAuthor=${post.metadata.annotations?.get('copyrightNoticeSourceAuthor')},
+  postNoticeAiTool=${post.metadata.annotations?.get('copyrightNoticeAiTool')},
+  postNoticeAiUsage=${post.metadata.annotations?.get('copyrightNoticeAiUsage')},
+  postNoticeLicenseName=${post.metadata.annotations?.get('copyrightNoticeLicenseName')},
+  postNoticeLicenseUrl=${post.metadata.annotations?.get('copyrightNoticeLicenseUrl')},
+  postNoticeNote=${post.metadata.annotations?.get('copyrightNoticeNote')},
+  defaultNoticeSourceTitle=${copyrightNotice != null and copyrightNotice.source_title != null and !copyrightNotice.source_title.isEmpty() ? copyrightNotice.source_title : ''},
+  defaultNoticeSourceUrl=${copyrightNotice != null and copyrightNotice.source_url != null and !copyrightNotice.source_url.isEmpty() ? copyrightNotice.source_url : ''},
+  defaultNoticeSourceAuthor=${copyrightNotice != null and copyrightNotice.source_author != null and !copyrightNotice.source_author.isEmpty() ? copyrightNotice.source_author : ''},
+  defaultNoticeAiTool=${copyrightNotice != null and copyrightNotice.ai_tool != null and !copyrightNotice.ai_tool.isEmpty() ? copyrightNotice.ai_tool : ''},
+  defaultNoticeAiUsage=${copyrightNotice != null and copyrightNotice.ai_usage != null and !copyrightNotice.ai_usage.isEmpty() ? copyrightNotice.ai_usage : ''},
+  defaultNoticeLicenseName=${copyrightNotice != null and copyrightNotice.license_name != null and !copyrightNotice.license_name.isEmpty() ? copyrightNotice.license_name : 'CC BY-NC-SA 4.0'},
+  defaultNoticeLicenseUrl=${copyrightNotice != null and copyrightNotice.license_url != null and !copyrightNotice.license_url.isEmpty() ? copyrightNotice.license_url : 'https://creativecommons.org/licenses/by-nc-sa/4.0/'},
+  defaultNoticeNote=${copyrightNotice != null and copyrightNotice.note != null and !copyrightNotice.note.isEmpty() ? copyrightNotice.note : ''},
+  noticeTitle=${usePostNotice and postNoticeWorkTitle != null and !postNoticeWorkTitle.isEmpty() ? postNoticeWorkTitle : post.spec.title},
+  noticeLinkLabel=${noticeType == 'repost' ? '原文链接' : (noticeType == 'derivative' ? '原作链接' : (noticeType == 'custom' ? '相关链接' : '本文链接'))},
+  noticeSourceTitle=${usePostNotice and postNoticeSourceTitle != null and !postNoticeSourceTitle.isEmpty() ? postNoticeSourceTitle : defaultNoticeSourceTitle},
+  noticeSourceUrl=${usePostNotice and postNoticeSourceUrl != null and !postNoticeSourceUrl.isEmpty() ? postNoticeSourceUrl : defaultNoticeSourceUrl},
+  noticeSourceAuthor=${usePostNotice and postNoticeSourceAuthor != null and !postNoticeSourceAuthor.isEmpty() ? postNoticeSourceAuthor : defaultNoticeSourceAuthor},
+  noticeAiTool=${usePostNotice and postNoticeAiTool != null and !postNoticeAiTool.isEmpty() ? postNoticeAiTool : defaultNoticeAiTool},
+  noticeAiUsage=${usePostNotice and postNoticeAiUsage != null and !postNoticeAiUsage.isEmpty() ? postNoticeAiUsage : defaultNoticeAiUsage},
+  noticeNote=${usePostNotice and postNoticeNote != null and !postNoticeNote.isEmpty() ? postNoticeNote : defaultNoticeNote},
+  noticeLinkUrl=${(noticeType == 'repost' or noticeType == 'derivative' or noticeType == 'custom') and noticeSourceUrl != null and !noticeSourceUrl.isEmpty() ? noticeSourceUrl : post.status.permalink},
+  noticeLinkText=${(noticeType == 'repost' or noticeType == 'derivative') and noticeSourceTitle != null and !noticeSourceTitle.isEmpty() ? noticeSourceTitle : noticeTitle},
+  noticeLicenseName=${usePostNotice and postNoticeLicenseName != null and !postNoticeLicenseName.isEmpty() ? postNoticeLicenseName : defaultNoticeLicenseName},
+  noticeLicenseUrl=${usePostNotice and postNoticeLicenseUrl != null and !postNoticeLicenseUrl.isEmpty() ? postNoticeLicenseUrl : defaultNoticeLicenseUrl},
+  noticeBadge=${noticeType == 'repost' ? '搬运' : (noticeType == 'ai' ? 'AI' : (noticeType == 'derivative' ? '二创' : (noticeType == 'custom' ? '声明' : '原创')))}"
+  >
+    <section
+      th:if="${noticeEnabled}"
+      class="post-copyright-notice card bg-base-100/80 border-base-content/5 mt-8 rounded-2xl border shadow-lg backdrop-blur-xl"
+    >
+      <div class="card-body p-4 sm:p-5">
+        <div class="flex items-start gap-3.5 sm:gap-4">
+          <div
+            class="bg-base-content/5 ring-base-content/5 text-base-content/70 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1"
+          >
+            <span class="icon-[heroicons--document-check] h-5 w-5"></span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+              <span
+                class="border-base-content/10 bg-base-content/5 text-base-content/70 inline-flex items-center rounded-md border px-2 py-0.5 text-xs leading-4 font-medium"
+                th:text="${noticeBadge}"
+                >原创</span
+              >
+              <h2 class="text-base-content text-sm leading-6 font-semibold tracking-normal sm:text-base" th:text="${noticeTitle}">
+                文章标题
+              </h2>
+            </div>
+            <div class="text-base-content/60 mt-2.5 space-y-1.5 text-sm leading-6">
+              <p class="post-copyright-notice__line">
+                <span class="post-copyright-notice__label" th:text="${noticeLinkLabel + '：'}">本文链接：</span>
+                <a class="post-copyright-notice__link" th:href="@{${noticeLinkUrl}}" th:text="${noticeLinkText}">
+                  文章链接
+                </a>
+              </p>
+              <p
+                th:if="${noticeType == 'repost' and noticeSourceAuthor != null and !noticeSourceAuthor.isEmpty()}"
+                class="post-copyright-notice__line"
+              >
+                <span class="post-copyright-notice__label">原作者：</span>
+                <span th:text="${noticeSourceAuthor}">原作者</span>
+              </p>
+              <p th:if="${noticeType == 'derivative'}" class="post-copyright-notice__line">
+                <span>本文为二次创作</span>
+                <th:block th:if="${noticeSourceAuthor != null and !noticeSourceAuthor.isEmpty()}">
+                  <span>，原作者：</span>
+                  <span th:text="${noticeSourceAuthor}">原作者</span>
+                </th:block>
+              </p>
+              <p th:if="${noticeType == 'ai'}" class="post-copyright-notice__line">
+                <span>本文包含 AI 辅助内容</span>
+                <th:block th:if="${noticeAiTool != null and !noticeAiTool.isEmpty()}">
+                  <span>，使用 </span>
+                  <span th:text="${noticeAiTool}">AI 工具</span>
+                </th:block>
+                <th:block th:if="${noticeAiUsage != null and !noticeAiUsage.isEmpty()}">
+                  <span> 参与 </span>
+                  <span th:text="${noticeAiUsage}">资料整理</span>
+                </th:block>
+                <span>，已由作者审核。</span>
+              </p>
+              <p class="post-copyright-notice__line">
+                <span>本文采用 </span>
+                <a class="post-copyright-notice__link" th:href="@{${noticeLicenseUrl}}" th:text="${noticeLicenseName}">
+                  CC BY-NC-SA 4.0
+                </a>
+                <span> 许可协议，转载请注明出处。</span>
+              </p>
+              <p
+                th:if="${noticeNote != null and !noticeNote.isEmpty()}"
+                class="post-copyright-notice__line"
+                th:text="${noticeNote}"
+              >
+                补充说明
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </th:block>
+</html>

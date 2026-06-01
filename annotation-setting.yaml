@@ -133,43 +133,97 @@ spec:
       id: post_copyright_notice_mode
       name: copyrightNoticeMode
       label: 底部声明
-      help: 控制当前文章底部声明卡片，默认继承主题设置
+      help: 跟随默认读取主题设置；自定义声明会直接显示，并展开下方结构化声明字段
       value: inherit
       options:
-        - label: 继承主题设置
+        - label: 跟随默认
           value: inherit
-        - label: 强制显示
+        - label: 显示
           value: show
         - label: 隐藏
           value: hide
         - label: 自定义声明
           value: custom
+    - $formkit: select
+      id: post_copyright_notice_type
+      name: copyrightNoticeType
+      label: 声明类型
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      help: 决定前端声明卡片的文案结构
+      value: original
+      options:
+        - label: 原创
+          value: original
+        - label: 搬运 / 转载
+          value: repost
+        - label: AI 辅助
+          value: ai
+        - label: 二创 / 改编
+          value: derivative
+        - label: 自定义
+          value: custom
     - $formkit: text
-      id: post_copyright_notice_title
-      name: copyrightNoticeTitle
-      label: 声明标题
+      id: post_copyright_notice_work_title
+      name: copyrightNoticeWorkTitle
+      label: 作品标题
       if: "$get(post_copyright_notice_mode).value === 'custom'"
+      help: 留空则使用当前文章标题
       value: ""
-      placeholder: "留空使用主题默认标题"
+      placeholder: "留空使用当前文章标题"
     - $formkit: text
-      id: post_copyright_notice_badge
-      name: copyrightNoticeBadge
-      label: 标记文字
+      id: post_copyright_notice_source_title
+      name: copyrightNoticeSourceTitle
+      label: 来源标题
+      if: "$get(post_copyright_notice_mode).value === 'custom' && ($get(post_copyright_notice_type).value === 'repost' || $get(post_copyright_notice_type).value === 'derivative')"
+      value: ""
+      placeholder: "原文或原作标题"
+    - $formkit: text
+      id: post_copyright_notice_source_url
+      name: copyrightNoticeSourceUrl
+      label: 来源链接
+      if: "$get(post_copyright_notice_mode).value === 'custom' && ($get(post_copyright_notice_type).value === 'repost' || $get(post_copyright_notice_type).value === 'derivative' || $get(post_copyright_notice_type).value === 'custom')"
+      value: ""
+      placeholder: "https://..."
+    - $formkit: text
+      id: post_copyright_notice_source_author
+      name: copyrightNoticeSourceAuthor
+      label: 原作者
+      if: "$get(post_copyright_notice_mode).value === 'custom' && ($get(post_copyright_notice_type).value === 'repost' || $get(post_copyright_notice_type).value === 'derivative')"
+      value: ""
+      placeholder: "原作者或来源站点"
+    - $formkit: text
+      id: post_copyright_notice_ai_tool
+      name: copyrightNoticeAiTool
+      label: AI 工具
+      if: "$get(post_copyright_notice_mode).value === 'custom' && $get(post_copyright_notice_type).value === 'ai'"
+      value: ""
+      placeholder: "如：ChatGPT / Claude / Gemini"
+    - $formkit: text
+      id: post_copyright_notice_ai_usage
+      name: copyrightNoticeAiUsage
+      label: AI 参与方式
+      if: "$get(post_copyright_notice_mode).value === 'custom' && $get(post_copyright_notice_type).value === 'ai'"
+      value: ""
+      placeholder: "如：资料整理、排版校对、代码辅助"
+    - $formkit: text
+      id: post_copyright_notice_license_name
+      name: copyrightNoticeLicenseName
+      label: 许可协议
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      value: "CC BY-NC-SA 4.0"
+      placeholder: "如：CC BY-NC-SA 4.0 / 保留所有权利"
+    - $formkit: text
+      id: post_copyright_notice_license_url
+      name: copyrightNoticeLicenseUrl
+      label: 协议链接
       if: "$get(post_copyright_notice_mode).value === 'custom'"
       value: ""
-      placeholder: "留空使用主题默认标记"
+      placeholder: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
     - $formkit: textarea
-      id: post_copyright_notice_content
-      name: copyrightNoticeContent
-      label: 声明内容
+      id: post_copyright_notice_note
+      name: copyrightNoticeNote
+      label: 补充说明
       if: "$get(post_copyright_notice_mode).value === 'custom'"
-      help: 当前文章单独使用的创作或版权声明
-      value: ""
-      rows: 3
-    - $formkit: textarea
-      id: post_copyright_notice_license
-      name: copyrightNoticeLicense
-      label: 版权说明
-      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      help: 可填写授权说明、修改说明或其他补充信息
       value: ""
       rows: 2

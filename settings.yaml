@@ -1809,54 +1809,82 @@ spec:
           label: 底部声明卡片
           value:
             enable: true
-            title: "创作声明"
-            badge_text: "原创内容"
-            content: "本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。"
-            license_text: "转载请注明出处，感谢尊重原创。"
-            show_author: true
-            show_publish_time: true
+            type: original
+            license_name: "CC BY-NC-SA 4.0"
+            license_url: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+            note: ""
           children:
             - $formkit: switch
               id: article_copyright_notice_enable
               name: enable
               label: 启用声明卡片
-              help: 在文章内容底部显示可自定义的创作与版权说明
+              help: 作为文章的默认底部声明；文章可单独设置为跟随默认、显示、隐藏或自定义声明
               value: true
+            - $formkit: select
+              id: article_copyright_notice_type
+              name: type
+              if: $get(article_copyright_notice_enable).value
+              label: 默认声明类型
+              value: original
+              options:
+                - label: 原创
+                  value: original
+                - label: 搬运 / 转载
+                  value: repost
+                - label: AI 辅助
+                  value: ai
+                - label: 二创 / 改编
+                  value: derivative
+                - label: 自定义
+                  value: custom
             - $formkit: text
-              name: title
+              name: source_title
               if: $get(article_copyright_notice_enable).value
-              label: 卡片标题
-              value: "创作声明"
-              placeholder: "创作声明"
+              label: 默认来源标题
+              value: ""
+              placeholder: "原文或原作标题"
             - $formkit: text
-              name: badge_text
+              name: source_url
               if: $get(article_copyright_notice_enable).value
-              label: 标记文字
-              value: "原创内容"
-              placeholder: "原创内容"
+              label: 默认来源链接
+              value: ""
+              placeholder: "https://..."
+            - $formkit: text
+              name: source_author
+              if: $get(article_copyright_notice_enable).value
+              label: 默认原作者
+              value: ""
+              placeholder: "原作者或来源站点"
+            - $formkit: text
+              name: ai_tool
+              if: $get(article_copyright_notice_enable).value
+              label: 默认 AI 工具
+              value: ""
+              placeholder: "如：ChatGPT / Claude / Gemini"
+            - $formkit: text
+              name: ai_usage
+              if: $get(article_copyright_notice_enable).value
+              label: 默认 AI 参与方式
+              value: ""
+              placeholder: "如：资料整理、排版校对、代码辅助"
+            - $formkit: text
+              name: license_name
+              if: $get(article_copyright_notice_enable).value
+              label: 默认许可协议
+              value: "CC BY-NC-SA 4.0"
+              placeholder: "如：CC BY-NC-SA 4.0 / 保留所有权利"
+            - $formkit: text
+              name: license_url
+              if: $get(article_copyright_notice_enable).value
+              label: 默认协议链接
+              value: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+              placeholder: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
             - $formkit: textarea
-              name: content
+              name: note
               if: $get(article_copyright_notice_enable).value
-              label: 声明内容
-              help: 用于说明文章创作方式、工具辅助边界或引用来源原则
-              value: "本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。"
-              rows: 3
-            - $formkit: textarea
-              name: license_text
-              if: $get(article_copyright_notice_enable).value
-              label: 版权说明
-              value: "转载请注明出处，感谢尊重原创。"
+              label: 默认补充说明
+              value: ""
               rows: 2
-            - $formkit: switch
-              name: show_author
-              if: $get(article_copyright_notice_enable).value
-              label: 显示作者
-              value: true
-            - $formkit: switch
-              name: show_publish_time
-              if: $get(article_copyright_notice_enable).value
-              label: 显示发布时间
-              value: true
         - $formkit: group
           name: sidebar_settings
           label: 侧边栏设置
