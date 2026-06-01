@@ -5,7 +5,51 @@
 <!--     文章底部功能区 - 苹果风双卡片布局        -->
 <!-- ========================================== -->
 
-<th:block th:fragment="footer" th:with="postCursor = ${postFinder.cursor(post.metadata.name)}">
+<th:block th:fragment="footer" th:with="postCursor = ${postFinder.cursor(post.metadata.name)},
+  copyrightNotice=${theme.config.article.copyright_notice},
+  noticeTitle=${copyrightNotice != null and copyrightNotice.title != null and !copyrightNotice.title.isEmpty() ? copyrightNotice.title : '创作声明'},
+  noticeBadge=${copyrightNotice != null and copyrightNotice.badge_text != null and !copyrightNotice.badge_text.isEmpty() ? copyrightNotice.badge_text : '原创内容'},
+  noticeContent=${copyrightNotice != null and copyrightNotice.content != null and !copyrightNotice.content.isEmpty() ? copyrightNotice.content : '本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。'},
+  noticeLicense=${copyrightNotice != null and copyrightNotice.license_text != null and !copyrightNotice.license_text.isEmpty() ? copyrightNotice.license_text : '转载请注明出处，感谢尊重原创。'}">
+
+  <!-- 创作与版权声明卡片 -->
+  <section th:if="${copyrightNotice?.enable != false}"
+    class="post-copyright-notice mt-8 rounded-2xl border border-base-content/5 bg-base-100/80 p-4 sm:p-6 shadow-lg backdrop-blur-xl">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+      <div
+        class="post-copyright-notice__icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <span class="icon-[heroicons--shield-check] h-6 w-6"></span>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 class="text-base font-semibold leading-6 text-base-content" th:text="${noticeTitle}">创作声明</h2>
+          <span th:if="${noticeBadge != null and !noticeBadge.isEmpty()}"
+            class="badge badge-primary badge-sm rounded-full" th:text="${noticeBadge}">原创内容</span>
+        </div>
+        <p class="mt-2 text-sm leading-7 text-base-content/70" th:text="${noticeContent}">
+          本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。
+        </p>
+        <div
+          class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs leading-5 text-base-content/50">
+          <span th:if="${copyrightNotice?.show_author != false and post.owner != null}"
+            class="inline-flex items-center gap-1.5">
+            <span class="icon-[heroicons--user-circle] h-4 w-4"></span>
+            <span th:text="${post.owner.displayName}">作者</span>
+          </span>
+          <span th:if="${copyrightNotice?.show_publish_time != false}"
+            class="inline-flex items-center gap-1.5">
+            <span class="icon-[heroicons--calendar-days] h-4 w-4"></span>
+            <time th:text="${#dates.format(post.spec.publishTime,'yyyy-MM-dd')}">2026-01-01</time>
+          </span>
+          <span th:if="${noticeLicense != null and !noticeLicense.isEmpty()}"
+            class="inline-flex items-center gap-1.5">
+            <span class="icon-[heroicons--link] h-4 w-4"></span>
+            <span th:text="${noticeLicense}">转载请注明出处，感谢尊重原创。</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- 互动卡片 - 使用 DaisyUI card -->
   <div class="card bg-base-100/80 backdrop-blur-xl shadow-lg border border-base-content/5 rounded-2xl mt-8"

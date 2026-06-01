@@ -85,7 +85,28 @@ html[data-color-scheme="dark"] ai-summary-widget {
 }
 
 /* ===================================================
- * 5. 标题锚点链接
+ * 5. 文章底部创作声明卡片
+ * ==================================================*/
+.post-copyright-notice {
+  position: relative;
+  overflow: hidden;
+}
+
+.post-copyright-notice::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0.65;
+}
+
+.post-copyright-notice__icon {
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--color-primary) 16%, transparent);
+}
+
+/* ===================================================
+ * 6. 标题锚点链接
  * ==================================================*/
 .heading-anchor {
   position: absolute;
@@ -101,7 +122,7 @@ html[data-color-scheme="dark"] ai-summary-widget {
 }
 
 /* ===================================================
- * 6. 目录抽屉（移动端）
+ * 7. 目录抽屉（移动端）
  * TOC 基础样式已在 main.css 中导入
  * ==================================================*/
 .post-toc-overlay {
@@ -141,7 +162,7 @@ html[data-color-scheme="dark"] ai-summary-widget {
 }
 
 /* ===================================================
- * 7. 阅读进度条
+ * 8. 阅读进度条
  * ==================================================*/
 #reading-progress {
   position: fixed;
@@ -155,7 +176,7 @@ html[data-color-scheme="dark"] ai-summary-widget {
 }
 
 /* ===================================================
- * 8. 响应式优化
+ * 9. 响应式优化
  * ==================================================*/
 @media (max-width: 1023px) {
   article.flex-1 {
