@@ -1,148 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="https://www.thymeleaf.org">
+  <!-- ========================================== -->
+  <!--     文章底部功能区 - 苹果风双卡片布局        -->
+  <!-- ========================================== -->
 
-<!-- ========================================== -->
-<!--     文章底部功能区 - 苹果风双卡片布局        -->
-<!-- ========================================== -->
-
-<th:block th:fragment="footer" th:with="postCursor = ${postFinder.cursor(post.metadata.name)},
+  <th:block
+    th:fragment="footer"
+    th:with="postCursor = ${postFinder.cursor(post.metadata.name)},
   copyrightNotice=${theme.config.article.copyright_notice},
-  noticeTitle=${copyrightNotice != null and copyrightNotice.title != null and !copyrightNotice.title.isEmpty() ? copyrightNotice.title : '创作声明'},
-  noticeBadge=${copyrightNotice != null and copyrightNotice.badge_text != null and !copyrightNotice.badge_text.isEmpty() ? copyrightNotice.badge_text : '原创内容'},
-  noticeContent=${copyrightNotice != null and copyrightNotice.content != null and !copyrightNotice.content.isEmpty() ? copyrightNotice.content : '本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。'},
-  noticeLicense=${copyrightNotice != null and copyrightNotice.license_text != null and !copyrightNotice.license_text.isEmpty() ? copyrightNotice.license_text : '转载请注明出处，感谢尊重原创。'}">
-
-  <!-- 创作与版权声明卡片 -->
-  <section th:if="${copyrightNotice?.enable != false}"
-    class="post-copyright-notice mt-8 rounded-2xl border border-base-content/5 bg-base-100/70 p-4 shadow-lg backdrop-blur-xl sm:p-5">
-    <div class="post-copyright-notice__glow" aria-hidden="true"></div>
-    <div class="relative flex flex-col gap-4 sm:flex-row sm:items-start">
-      <div class="post-copyright-notice__mark">
-        <span class="icon-[heroicons--sparkles] h-5 w-5"></span>
-      </div>
-      <div class="min-w-0 flex-1">
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <h2 class="text-sm font-semibold leading-6 text-base-content/90 sm:text-base" th:text="${noticeTitle}">创作声明</h2>
-          <span th:if="${noticeBadge != null and !noticeBadge.isEmpty()}"
-            class="post-copyright-notice__badge" th:text="${noticeBadge}">原创内容</span>
+  postNoticeMode=${post.metadata.annotations?.get('copyrightNoticeMode') ?: 'inherit'},
+  usePostNotice=${postNoticeMode == 'custom'},
+  noticeEnabled=${postNoticeMode == 'hide' ? false : (postNoticeMode == 'show' or postNoticeMode == 'custom' ? true : copyrightNotice?.enable != false)},
+  defaultNoticeTitle=${copyrightNotice != null and copyrightNotice.title != null and !copyrightNotice.title.isEmpty() ? copyrightNotice.title : '创作声明'},
+  defaultNoticeBadge=${copyrightNotice != null and copyrightNotice.badge_text != null and !copyrightNotice.badge_text.isEmpty() ? copyrightNotice.badge_text : '原创内容'},
+  defaultNoticeContent=${copyrightNotice != null and copyrightNotice.content != null and !copyrightNotice.content.isEmpty() ? copyrightNotice.content : '本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。'},
+  defaultNoticeLicense=${copyrightNotice != null and copyrightNotice.license_text != null and !copyrightNotice.license_text.isEmpty() ? copyrightNotice.license_text : '转载请注明出处，感谢尊重原创。'},
+  postNoticeTitle=${post.metadata.annotations?.get('copyrightNoticeTitle')},
+  postNoticeBadge=${post.metadata.annotations?.get('copyrightNoticeBadge')},
+  postNoticeContent=${post.metadata.annotations?.get('copyrightNoticeContent')},
+  postNoticeLicense=${post.metadata.annotations?.get('copyrightNoticeLicense')},
+  noticeTitle=${usePostNotice and postNoticeTitle != null and !postNoticeTitle.isEmpty() ? postNoticeTitle : defaultNoticeTitle},
+  noticeBadge=${usePostNotice and postNoticeBadge != null and !postNoticeBadge.isEmpty() ? postNoticeBadge : defaultNoticeBadge},
+  noticeContent=${usePostNotice and postNoticeContent != null and !postNoticeContent.isEmpty() ? postNoticeContent : defaultNoticeContent},
+  noticeLicense=${usePostNotice and postNoticeLicense != null and !postNoticeLicense.isEmpty() ? postNoticeLicense : defaultNoticeLicense}"
+  >
+    <!-- 创作与版权声明卡片 -->
+    <section
+      th:if="${noticeEnabled}"
+      class="post-copyright-notice border-base-content/8 bg-base-100/75 mt-8 rounded-2xl border p-4 shadow-sm backdrop-blur-xl sm:p-5"
+    >
+      <div class="relative flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div class="post-copyright-notice__mark">
+          <span class="icon-[heroicons--document-check] h-4 w-4"></span>
         </div>
-        <p class="mt-2.5 text-sm leading-7 text-base-content/68" th:text="${noticeContent}">
-          本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。
-        </p>
-        <div class="post-copyright-notice__meta mt-4 flex flex-wrap items-center gap-2 text-xs leading-5">
-          <span th:if="${copyrightNotice?.show_author != false and post.owner != null}"
-            class="post-copyright-notice__chip">
-            <span class="icon-[heroicons--user-circle] h-4 w-4"></span>
-            <span th:text="${post.owner.displayName}">作者</span>
-          </span>
-          <span th:if="${copyrightNotice?.show_publish_time != false}"
-            class="post-copyright-notice__chip">
-            <span class="icon-[heroicons--calendar-days] h-4 w-4"></span>
-            <time th:text="${#dates.format(post.spec.publishTime,'yyyy-MM-dd')}">2026-01-01</time>
-          </span>
-          <span th:if="${noticeLicense != null and !noticeLicense.isEmpty()}"
-            class="post-copyright-notice__chip post-copyright-notice__chip--wide">
-            <span class="icon-[heroicons--document-check] h-4 w-4"></span>
-            <span th:text="${noticeLicense}">转载请注明出处，感谢尊重原创。</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 互动卡片 - 使用 DaisyUI card -->
-  <div class="card bg-base-100/80 backdrop-blur-xl shadow-lg border border-base-content/5 rounded-2xl mt-8"
-    th:attr="data-post-name=${post.metadata.name}, data-upvote-count=${post.stats.upvote ?: 0}">
-    <div class="card-body p-4 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-        <!-- 左侧：互动按钮 -->
-        <div class="flex items-center gap-3">
-          <!-- 点赞按钮 -->
-          <button th:if="${theme.config.article.post_interaction?.enable_like != false}" x-data="postLike()"
-            @click="toggleLike()" class="btn btn-sm rounded-full gap-2 transition-all duration-200" :class="isLiked 
-              ? 'bg-error/15 text-error border-error/20 hover:bg-error/20' 
-              : 'bg-base-200 text-base-content border-transparent hover:bg-error/10 hover:text-error'">
-            <span class="w-5 h-5" :class="isLiked ? 'icon-[heroicons--heart-solid]' : 'icon-[heroicons--heart]'"></span>
-            <span x-show="likeCount > 0" x-text="likeCount"></span>
-          </button>
-
-          <!-- 分享按钮 -->
-          <button th:if="${theme.config.article.post_interaction?.enable_share != false}" x-data
-            @click="$dispatch('open-share-modal')"
-            class="btn btn-sm btn-ghost bg-base-200 rounded-full gap-2 transition-all duration-200 hover:bg-primary/10 hover:text-primary">
-            <span class="icon-[heroicons--share] w-5 h-5"></span>
-            <span class="hidden sm:inline">分享</span>
-          </button>
-        </div>
-
-        <!-- 右侧：翻页导航 -->
-        <div class="flex gap-2 w-full sm:w-auto sm:max-w-[60%]">
-          <!-- 上一篇 -->
-          <a th:if="${postCursor.hasPrevious()}" th:href="@{${postCursor.previous.status.permalink}}"
-            class="flex-1 btn btn-ghost bg-base-200 border-0 rounded-xl h-auto py-2 px-3 flex-nowrap justify-start gap-2 hover:bg-primary/10 hover:text-primary group overflow-hidden">
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h2 class="text-base-content/90 text-sm leading-6 font-semibold sm:text-base" th:text="${noticeTitle}">
+              创作声明
+            </h2>
             <span
-              class="icon-[heroicons--arrow-left] w-4 h-4 shrink-0 opacity-60 group-hover:opacity-100 transition-all group-hover:-translate-x-0.5"></span>
-            <div class="flex flex-col items-start min-w-0 overflow-hidden">
-              <span class="text-[10px] opacity-50">上一篇</span>
-              <span class="text-xs font-medium truncate w-full" th:text="${postCursor.previous.spec.title}">上一篇标题</span>
-            </div>
-          </a>
-          <div th:unless="${postCursor.hasPrevious()}"
-            class="flex-1 btn btn-ghost bg-base-200/50 border-0 rounded-xl h-auto py-2 px-3 flex-nowrap justify-start gap-2 opacity-40 cursor-not-allowed no-animation">
-            <span class="icon-[heroicons--arrow-left] w-4 h-4 shrink-0 opacity-60"></span>
-            <div class="flex flex-col items-start">
-              <span class="text-[10px] opacity-50">上一篇</span>
-              <span class="text-xs font-medium">没有了</span>
-            </div>
+              th:if="${noticeBadge != null and !noticeBadge.isEmpty()}"
+              class="post-copyright-notice__badge"
+              th:text="${noticeBadge}"
+              >原创内容</span
+            >
           </div>
-
-          <!-- 下一篇 -->
-          <a th:if="${postCursor.hasNext()}" th:href="@{${postCursor.next.status.permalink}}"
-            class="flex-1 btn btn-ghost bg-base-200 border-0 rounded-xl h-auto py-2 px-3 flex-nowrap justify-end gap-2 hover:bg-primary/10 hover:text-primary group overflow-hidden">
-            <div class="flex flex-col items-end min-w-0 overflow-hidden">
-              <span class="text-[10px] opacity-50">下一篇</span>
-              <span class="text-xs font-medium truncate w-full text-right"
-                th:text="${postCursor.next.spec.title}">下一篇标题</span>
-            </div>
+          <p class="text-base-content/68 mt-2.5 text-sm leading-7" th:text="${noticeContent}">
+            本文由站长独立创作，可能会借助工具进行资料整理、排版或校对；如有引用或转载内容，会在文中注明来源。
+          </p>
+          <div class="post-copyright-notice__meta mt-4 flex flex-wrap items-center gap-2 text-xs leading-5">
             <span
-              class="icon-[heroicons--arrow-right] w-4 h-4 shrink-0 opacity-60 group-hover:opacity-100 transition-all group-hover:translate-x-0.5"></span>
-          </a>
-          <div th:unless="${postCursor.hasNext()}"
-            class="flex-1 btn btn-ghost bg-base-200/50 border-0 rounded-xl h-auto py-2 px-3 flex-nowrap justify-end gap-2 opacity-40 cursor-not-allowed no-animation">
-            <div class="flex flex-col items-end">
-              <span class="text-[10px] opacity-50">下一篇</span>
-              <span class="text-xs font-medium">没有了</span>
-            </div>
-            <span class="icon-[heroicons--arrow-right] w-4 h-4 shrink-0 opacity-60"></span>
+              th:if="${copyrightNotice?.show_author != false and post.owner != null}"
+              class="post-copyright-notice__chip"
+            >
+              <span class="icon-[heroicons--user-circle] h-4 w-4"></span>
+              <span th:text="${post.owner.displayName}">作者</span>
+            </span>
+            <span th:if="${copyrightNotice?.show_publish_time != false}" class="post-copyright-notice__chip">
+              <span class="icon-[heroicons--calendar-days] h-4 w-4"></span>
+              <time th:text="${#dates.format(post.spec.publishTime,'yyyy-MM-dd')}">2026-01-01</time>
+            </span>
+            <span
+              th:if="${noticeLicense != null and !noticeLicense.isEmpty()}"
+              class="post-copyright-notice__chip post-copyright-notice__chip--wide"
+            >
+              <span class="icon-[heroicons--link] h-4 w-4"></span>
+              <span th:text="${noticeLicense}">转载请注明出处，感谢尊重原创。</span>
+            </span>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- 评论卡片 - 使用 DaisyUI card -->
-  <div th:if="${theme.config.article.post_interaction?.enable_comment != false}"
-    class="card bg-base-100/80 backdrop-blur-xl shadow-lg border border-base-content/5 rounded-2xl mt-4 overflow-hidden">
+    <!-- 互动卡片 - 使用 DaisyUI card -->
+    <div
+      class="card bg-base-100/80 border-base-content/5 mt-8 rounded-2xl border shadow-lg backdrop-blur-xl"
+      th:attr="data-post-name=${post.metadata.name}, data-upvote-count=${post.stats.upvote ?: 0}"
+    >
+      <div class="card-body p-4 sm:p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <!-- 左侧：互动按钮 -->
+          <div class="flex items-center gap-3">
+            <!-- 点赞按钮 -->
+            <button
+              th:if="${theme.config.article.post_interaction?.enable_like != false}"
+              x-data="postLike()"
+              @click="toggleLike()"
+              class="btn btn-sm gap-2 rounded-full transition-all duration-200"
+              :class="isLiked
+              ? 'bg-error/15 text-error border-error/20 hover:bg-error/20'
+              : 'bg-base-200 text-base-content border-transparent hover:bg-error/10 hover:text-error'"
+            >
+              <span
+                class="h-5 w-5"
+                :class="isLiked ? 'icon-[heroicons--heart-solid]' : 'icon-[heroicons--heart]'"
+              ></span>
+              <span x-show="likeCount > 0" x-text="likeCount"></span>
+            </button>
 
-    <!-- 评论区标题 -->
-    <div class="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-base-content/5 bg-base-200/30">
-      <div class="flex items-center gap-2 text-sm font-semibold text-base-content">
-        <span class="icon-[heroicons--chat-bubble-left-right] w-4 h-4 text-primary"></span>
-        <span>评论交流</span>
+            <!-- 分享按钮 -->
+            <button
+              th:if="${theme.config.article.post_interaction?.enable_share != false}"
+              x-data
+              @click="$dispatch('open-share-modal')"
+              class="btn btn-sm btn-ghost bg-base-200 hover:bg-primary/10 hover:text-primary gap-2 rounded-full transition-all duration-200"
+            >
+              <span class="icon-[heroicons--share] h-5 w-5"></span>
+              <span class="hidden sm:inline">分享</span>
+            </button>
+          </div>
+
+          <!-- 右侧：翻页导航 -->
+          <div class="flex w-full gap-2 sm:w-auto sm:max-w-[60%]">
+            <!-- 上一篇 -->
+            <a
+              th:if="${postCursor.hasPrevious()}"
+              th:href="@{${postCursor.previous.status.permalink}}"
+              class="btn btn-ghost bg-base-200 hover:bg-primary/10 hover:text-primary group h-auto flex-1 flex-nowrap justify-start gap-2 overflow-hidden rounded-xl border-0 px-3 py-2"
+            >
+              <span
+                class="icon-[heroicons--arrow-left] h-4 w-4 shrink-0 opacity-60 transition-all group-hover:-translate-x-0.5 group-hover:opacity-100"
+              ></span>
+              <div class="flex min-w-0 flex-col items-start overflow-hidden">
+                <span class="text-[10px] opacity-50">上一篇</span>
+                <span class="w-full truncate text-xs font-medium" th:text="${postCursor.previous.spec.title}"
+                  >上一篇标题</span
+                >
+              </div>
+            </a>
+            <div
+              th:unless="${postCursor.hasPrevious()}"
+              class="btn btn-ghost bg-base-200/50 no-animation h-auto flex-1 cursor-not-allowed flex-nowrap justify-start gap-2 rounded-xl border-0 px-3 py-2 opacity-40"
+            >
+              <span class="icon-[heroicons--arrow-left] h-4 w-4 shrink-0 opacity-60"></span>
+              <div class="flex flex-col items-start">
+                <span class="text-[10px] opacity-50">上一篇</span>
+                <span class="text-xs font-medium">没有了</span>
+              </div>
+            </div>
+
+            <!-- 下一篇 -->
+            <a
+              th:if="${postCursor.hasNext()}"
+              th:href="@{${postCursor.next.status.permalink}}"
+              class="btn btn-ghost bg-base-200 hover:bg-primary/10 hover:text-primary group h-auto flex-1 flex-nowrap justify-end gap-2 overflow-hidden rounded-xl border-0 px-3 py-2"
+            >
+              <div class="flex min-w-0 flex-col items-end overflow-hidden">
+                <span class="text-[10px] opacity-50">下一篇</span>
+                <span class="w-full truncate text-right text-xs font-medium" th:text="${postCursor.next.spec.title}"
+                  >下一篇标题</span
+                >
+              </div>
+              <span
+                class="icon-[heroicons--arrow-right] h-4 w-4 shrink-0 opacity-60 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
+              ></span>
+            </a>
+            <div
+              th:unless="${postCursor.hasNext()}"
+              class="btn btn-ghost bg-base-200/50 no-animation h-auto flex-1 cursor-not-allowed flex-nowrap justify-end gap-2 rounded-xl border-0 px-3 py-2 opacity-40"
+            >
+              <div class="flex flex-col items-end">
+                <span class="text-[10px] opacity-50">下一篇</span>
+                <span class="text-xs font-medium">没有了</span>
+              </div>
+              <span class="icon-[heroicons--arrow-right] h-4 w-4 shrink-0 opacity-60"></span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div th:if="${post.stats.comment != null and post.stats.comment > 0}" class="badge badge-ghost badge-sm">
-        <span th:text="${post.stats.comment}">0</span> 条
+    </div>
+
+    <!-- 评论卡片 - 使用 DaisyUI card -->
+    <div
+      th:if="${theme.config.article.post_interaction?.enable_comment != false}"
+      class="card bg-base-100/80 border-base-content/5 mt-4 overflow-hidden rounded-2xl border shadow-lg backdrop-blur-xl"
+    >
+      <!-- 评论区标题 -->
+      <div class="border-base-content/5 bg-base-200/30 flex items-center justify-between border-b px-4 py-3 sm:px-6">
+        <div class="text-base-content flex items-center gap-2 text-sm font-semibold">
+          <span class="icon-[heroicons--chat-bubble-left-right] text-primary h-4 w-4"></span>
+          <span>评论交流</span>
+        </div>
+        <div th:if="${post.stats.comment != null and post.stats.comment > 0}" class="badge badge-ghost badge-sm">
+          <span th:text="${post.stats.comment}">0</span> 条
+        </div>
+      </div>
+
+      <!-- Halo 评论组件 -->
+      <div class="card-body p-4 sm:p-6">
+        <halo:comment group="content.halo.run" kind="Post" th:attr="name=${post.metadata.name}" colorScheme="system">
+        </halo:comment>
       </div>
     </div>
-
-    <!-- Halo 评论组件 -->
-    <div class="card-body p-4 sm:p-6">
-      <halo:comment group="content.halo.run" kind="Post" th:attr="name=${post.metadata.name}" colorScheme="system">
-      </halo:comment>
-    </div>
-  </div>
-
-</th:block>
-
+  </th:block>
 </html>

@@ -19,7 +19,6 @@ spec:
       help: "选择装备分组的图标"
 
 ---
-
 # 装备卡片样式配置 (战术终端版)
 apiVersion: v1alpha1
 kind: AnnotationSetting
@@ -48,7 +47,7 @@ spec:
         - label: "主题色"
           value: "theme"
       value: "gold"
-    
+
     # 自定义颜色 (仅 custom 模式生效)
     - $formkit: "color"
       if: "$get(cardStyle).value === 'custom'"
@@ -56,7 +55,7 @@ spec:
       label: "自定义颜色"
       help: "选择一个自定义的强调色"
       value: "#8b5cf6"
-    
+
     # 规格参数 (多行文本，支持进度条)
     - $formkit: "textarea"
       name: "specs"
@@ -66,7 +65,6 @@ spec:
       rows: 4
 
 ---
-
 # 菜单图标配置
 apiVersion: v1alpha1
 kind: AnnotationSetting
@@ -85,7 +83,6 @@ spec:
       value-only: true
 
 ---
-
 # 分类图标配置
 apiVersion: v1alpha1
 kind: AnnotationSetting
@@ -104,7 +101,6 @@ spec:
       value-only: true
 
 ---
-
 # 标签图标配置
 apiVersion: v1alpha1
 kind: AnnotationSetting
@@ -121,3 +117,59 @@ spec:
       help: "选择一个图标代表此标签"
       format: svg
       value-only: true
+
+---
+# 文章底部声明配置
+apiVersion: v1alpha1
+kind: AnnotationSetting
+metadata:
+  name: theme-sky-blog-post-copyright-notice
+spec:
+  targetRef:
+    group: content.halo.run
+    kind: Post
+  formSchema:
+    - $formkit: select
+      id: post_copyright_notice_mode
+      name: copyrightNoticeMode
+      label: 底部声明
+      help: 控制当前文章底部声明卡片，默认继承主题设置
+      value: inherit
+      options:
+        - label: 继承主题设置
+          value: inherit
+        - label: 强制显示
+          value: show
+        - label: 隐藏
+          value: hide
+        - label: 自定义声明
+          value: custom
+    - $formkit: text
+      id: post_copyright_notice_title
+      name: copyrightNoticeTitle
+      label: 声明标题
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      value: ""
+      placeholder: "留空使用主题默认标题"
+    - $formkit: text
+      id: post_copyright_notice_badge
+      name: copyrightNoticeBadge
+      label: 标记文字
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      value: ""
+      placeholder: "留空使用主题默认标记"
+    - $formkit: textarea
+      id: post_copyright_notice_content
+      name: copyrightNoticeContent
+      label: 声明内容
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      help: 当前文章单独使用的创作或版权声明
+      value: ""
+      rows: 3
+    - $formkit: textarea
+      id: post_copyright_notice_license
+      name: copyrightNoticeLicense
+      label: 版权说明
+      if: "$get(post_copyright_notice_mode).value === 'custom'"
+      value: ""
+      rows: 2
