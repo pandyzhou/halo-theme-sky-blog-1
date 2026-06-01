@@ -88,6 +88,7 @@
         </div>
 
         <!-- ========== Tab 切换 (DaisyUI Radio Tabs, 无 JS) ========== -->
+        <!-- 兼容基线：PluginMoments v1.16.0；作者页瞬间 Tab 使用 momentFinder.list({owner, sort})。 -->
         <th:block th:with="authorMoments = ${momentFinder.list({
           page: 1,
           size: 5,

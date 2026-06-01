@@ -8,7 +8,7 @@
 
 - 文档首页、内容页和目录页使用 Docsme 官方模板变量与页面协议。
 - 首页「文档中心」模块使用 `docsmeProjectsFinder`，最低需要 `plugin-docsme >=1.4.0`。
-- 当前主题适配基线：免费版 `1.5.0`，专业版/商业版 `1.6.0`：[Docsme 文档管理](https://www.halo.run/store/apps/app-yffxw)。
+- 当前主题适配基线：`plugin-docsme v1.7.0`；首页 Finder 能力继续兼容 `>=1.4.0`：[Docsme 文档管理](https://www.halo.run/store/apps/app-yffxw)。
 
 ---
 

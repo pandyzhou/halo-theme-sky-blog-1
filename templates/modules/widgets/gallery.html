@@ -1,3 +1,4 @@
+<!-- 兼容基线：PluginPhotos v2.1.1；首页图库模块使用 photoFinder.groupBy()。 -->
 <th:block th:fragment="gallery(context)">
   <th:block th:with="gallerySettings = ${theme.config.index.gallery_settings}">
     <section th:if="${gallerySettings != null and gallerySettings.enable_gallery == true}"
@@ -24,7 +25,7 @@
       </div>
 
       <!-- 未安装插件时的提醒 -->
-      <th:block th:unless="${pluginFinder.available('PluginPhotos')}">
+      <th:block th:unless="${pluginFinder.available('PluginPhotos', '>=2.1.1')}">
         <div class="text-center py-12 bg-base-100/50 rounded-3xl border border-base-content/5 border-dashed">
           <span class="icon-[heroicons--photo] w-12 h-12 mx-auto text-base-content/20 mb-4 block"></span>
           <p class="text-base-content/60 mb-4">需要安装图库插件来展示照片</p>
@@ -37,7 +38,7 @@
       </th:block>
 
       <!-- 已安装插件时显示内容 -->
-      <th:block th:if="${pluginFinder.available('PluginPhotos')}">
+      <th:block th:if="${pluginFinder.available('PluginPhotos', '>=2.1.1')}">
         <th:block th:with="groups = ${photoFinder.groupBy()}">
           <div th:if="${groups != null && !groups.isEmpty()}"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">

@@ -102,9 +102,14 @@
                     <!-- 单图 -->
                     <th:block th:if="${#lists.size(content.medium) == 1}">
                       <th:block th:each="medium : ${content.medium}">
-                        <div th:if="${medium.type.name == 'PHOTO'}" class="moment-single-img-wrap">
+                        <a
+                          th:if="${medium.type.name == 'PHOTO'}"
+                          th:href="${medium.url}"
+                          th:attr="data-src=${medium.url}"
+                          class="moment-single-img-wrap"
+                        >
                           <img th:src="${medium.url}" alt="瞬间图片" class="max-h-72 object-cover" loading="lazy" />
-                        </div>
+                        </a>
                         <video th:if="${medium.type.name == 'VIDEO'}" th:src="${medium.url}" controls preload="metadata"
                           class="rounded-xl max-h-72 w-full">
                         </video>
@@ -135,7 +140,8 @@
                           #lists.size(nonPostMedia) == 8 ? 'grid-cols-6' : 'grid-cols-3'
                         }">
                       <th:block th:each="medium, stat : ${nonPostMedia}">
-                        <div th:if="${medium.type.name == 'PHOTO' && stat.index < 9}" class="moment-grid-item"
+                        <a th:if="${medium.type.name == 'PHOTO' && stat.index < 9}" th:href="${medium.url}"
+                          th:attr="data-src=${medium.url}" class="moment-grid-item"
                           th:classappend="${
                             #lists.size(nonPostMedia) == 3 && stat.index == 0 ? 'col-span-2 row-span-2 aspect-square' :
                             #lists.size(nonPostMedia) == 3 && stat.index > 0 ? 'col-span-1 aspect-square' :
@@ -152,7 +158,7 @@
                             <span class="text-white text-xl font-semibold"
                               th:text="'+' + (${#lists.size(nonPostMedia)} - 9)">+3</span>
                           </div>
-                        </div>
+                        </a>
                         <video th:if="${medium.type.name == 'VIDEO'}" th:src="${medium.url}" controls
                           preload="metadata" class="col-span-full rounded-xl max-h-72 w-full">
                         </video>

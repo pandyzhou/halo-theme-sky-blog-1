@@ -164,7 +164,7 @@
 
 ## 15. 文档中心模块
 
-需安装 `plugin-docsme` 插件。首页文档中心模块会调用 `docsmeProjectsFinder`，最低需要 `plugin-docsme >=1.4.0`；当前主题适配基线为免费版 `1.5.0`、专业版/商业版 `1.6.0`。
+需安装 `plugin-docsme` 插件。首页文档中心模块会调用 `docsmeProjectsFinder`，最低需要 `plugin-docsme >=1.4.0`；当前主题适配基线为 `plugin-docsme v1.7.0`。
 
 | 设置项           | 说明                            |
 | ---------------- | ------------------------------- |

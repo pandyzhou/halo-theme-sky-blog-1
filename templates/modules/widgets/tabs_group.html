@@ -1,3 +1,4 @@
+<!-- 兼容基线：plugin-friends v1.4.6 + PluginLinks v2.0.0 + PluginMoments v1.16.0；首页 Tab 使用 friendFinder.list/linkFinder.groupBy/momentFinder.list。 -->
 <th:block th:fragment="tabs_group(context)">
   <th:block th:with="
             tabsList = ${tabsOrder.![#this instanceof T(java.lang.String) ? #this : #this.tab]},

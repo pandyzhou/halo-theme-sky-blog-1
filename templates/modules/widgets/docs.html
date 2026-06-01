@@ -1,5 +1,5 @@
 <th:block th:fragment="docs(context)">
-  <!-- 兼容基线：plugin-docsme Finder >=1.4.0；免费版 1.5.0 / 专业版 1.6.0 均可用；0 篇文档项目不生成详情链接。 -->
+  <!-- 兼容基线：plugin-docsme v1.7.0；Finder >=1.4.0；0 篇文档项目不生成详情链接。 -->
   <th:block th:with="docsSettings = ${theme.config.index.docs_settings}">
     <section
       th:if="${docsSettings != null and docsSettings.enable_docs == true}"
@@ -41,7 +41,7 @@
       <th:block th:unless="${pluginFinder.available('plugin-docsme', '>=1.4.0')}">
         <div class="bg-base-100/50 border-base-content/5 rounded-2xl border border-dashed py-8 text-center">
           <p class="text-base-content/60 mb-1 text-sm">需要安装或升级 Docsme 插件 (≥1.4.0)</p>
-          <p class="text-base-content/40 mb-3 text-xs">免费版请安装 1.5.0 免授权版本；专业版/商业版可使用 1.6.0</p>
+          <p class="text-base-content/40 mb-3 text-xs">当前主题按 Docsme 1.7.0 适配；首页模块最低需要 Finder >=1.4.0</p>
           <a
             href="https://www.halo.run/store/apps/app-yffxw"
             target="_blank"
