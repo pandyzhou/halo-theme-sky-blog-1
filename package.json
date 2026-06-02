@@ -1,7 +1,7 @@
 {
   "type": "module",
   "license": "GPL-3.0",
-  "version": "2.2.19",
+  "version": "2.2.20",
   "scripts": {
     "build": "tsc && vite build && theme-package",
     "build-only": "tsc && vite build",

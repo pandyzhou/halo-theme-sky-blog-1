@@ -228,7 +228,9 @@ function createShareModal() {
       const width = 400, height = 500;
       const left = (window.innerWidth - width) / 2;
       const top = (window.innerHeight - height) / 2;
-      const qrcodePageUrl = `${this.qrcodePageUrl}?url=${encodeURIComponent(this.permalink)}`;
+      const qrcodePage = new URL(this.qrcodePageUrl, window.location.origin);
+      qrcodePage.searchParams.set('url', this.permalink);
+      const qrcodePageUrl = qrcodePage.toString();
       window.open(qrcodePageUrl, '微信扫码分享',
         `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,status=no,scrollbars=no,resizable=no`);
     }
