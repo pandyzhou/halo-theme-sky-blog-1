@@ -144,6 +144,64 @@
   }
 
   /**
+   * LightGallery 灯箱初始化
+   * 为文章内容中的图片添加点击放大功能
+   */
+  function initLightGallery() {
+    var content = document.getElementById('article-content');
+    if (!content || typeof window.lightGallery !== 'function') return;
+
+    // 已初始化则跳过
+    if (content.getAttribute('lg-uid')) return;
+
+    // 找到所有独立图片（不在 a 标签内）
+    var images = content.querySelectorAll('img');
+    var count = 0;
+
+    images.forEach(function(img) {
+      // 跳过已在链接中的图片
+      if (img.closest('a')) return;
+      // 跳过小图标（宽度 < 50px）
+      var w = img.getAttribute('width');
+      if (w && parseInt(w) < 50) return;
+      // 跳过表情/emoji
+      if (img.closest('.emoji') || img.closest('[data-type="emoji"]')) return;
+
+      var src = img.getAttribute('src');
+      if (!src) return;
+
+      // 创建包裹链接
+      var wrapper = document.createElement('a');
+      wrapper.href = src;
+      wrapper.setAttribute('data-src', src);
+      wrapper.setAttribute('data-lg-size', '');
+      wrapper.className = 'inline-block max-w-full';
+
+      // 传递 alt 作为灯箱标题
+      var alt = img.getAttribute('alt');
+      if (alt) wrapper.setAttribute('data-sub-html', '<p>' + alt + '</p>');
+
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+      count++;
+    });
+
+    // 初始化 lightGallery
+    if (count > 0) {
+      window.lightGallery(content, {
+        selector: 'a[data-src]',
+        mode: 'lg-fade',
+        speed: 300,
+        download: false,
+        counter: true,
+        zoom: true,
+        scale: 1,
+        actualSize: true
+      });
+    }
+  }
+
+  /**
    * 初始化所有文章内容处理
    */
   function initArticleContent() {
@@ -152,6 +210,7 @@
     setupExternalLinks();
     initAdmonitionGlow();
     removeBlurStyles();
+    initLightGallery();
   }
 
   // 自动初始化

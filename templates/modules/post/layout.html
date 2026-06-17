@@ -23,6 +23,11 @@
     <link rel="stylesheet" th:href="@{/assets/css/main.css?v={version}(version='2.2.23')}" />
     <link rel="stylesheet" th:href="@{/assets/css/post.css?v={version}(version='2.2.23')}" />
 
+    <!-- LightGallery 灯箱 -->
+    <link rel="stylesheet" th:href="@{/plugins/PluginLightGallery/assets/static/css/lightgallery.min.css}" />
+    <script defer th:src="@{/plugins/PluginLightGallery/assets/static/js/lightgallery.min.js}"></script>
+    <script defer th:src="@{/plugins/PluginLightGallery/assets/static/js/plugins/zoom/lg-zoom.min.js}"></script>
+
     <!-- 音乐播放器 CSS -->
     <th:block th:replace="~{modules/music-player :: head}" />
   </head>
