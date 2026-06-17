@@ -143,62 +143,127 @@
     });
   }
 
+  var lightGalleryRetryTimer = null;
+
+  function isProbablyImageUrl(url) {
+    if (!url) return false;
+    try {
+      var parsed = new URL(url, window.location.href);
+      return /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i.test(parsed.pathname + parsed.search);
+    } catch {
+      return /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i.test(url);
+    }
+  }
+
+  function shouldSkipLightGalleryImage(img) {
+    if (!img) return true;
+
+    var width = img.getAttribute('width');
+    if (width && parseInt(width) < 50) return true;
+
+    if (img.closest('.emoji') || img.closest('[data-type="emoji"]')) return true;
+    if (img.closest('a[data-no-lightgallery], [data-no-lightgallery]')) return true;
+
+    var src = img.currentSrc || img.getAttribute('src') || img.getAttribute('data-src');
+    return !src;
+  }
+
+  function getLightGallerySrc(img) {
+    return img.currentSrc || img.getAttribute('src') || img.getAttribute('data-src') || '';
+  }
+
+  function applyLightGalleryAttributes(link, img, src) {
+    link.setAttribute('data-src', src);
+    link.setAttribute('data-sky-lightgallery-item', 'true');
+    if (!link.getAttribute('href')) link.setAttribute('href', src);
+    if (!link.getAttribute('data-lg-size')) link.setAttribute('data-lg-size', '');
+    if (!link.classList.contains('inline-block')) link.classList.add('inline-block');
+    if (!link.classList.contains('max-w-full')) link.classList.add('max-w-full');
+
+    var alt = img.getAttribute('alt');
+    if (alt && !link.getAttribute('data-sub-html')) {
+      link.setAttribute('data-sub-html', '<p>' + alt.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>');
+    }
+  }
+
+  function prepareLightGalleryItems(content) {
+    var preparedCount = 0;
+    var images = content.querySelectorAll('img');
+
+    images.forEach(function(img) {
+      if (shouldSkipLightGalleryImage(img)) return;
+
+      var src = getLightGallerySrc(img);
+      if (!src) return;
+
+      var existingLink = img.closest('a');
+      if (existingLink) {
+        var href = existingLink.getAttribute('href') || '';
+        if (!href || href === '#' || isProbablyImageUrl(href) || href === src) {
+          applyLightGalleryAttributes(existingLink, img, href && href !== '#' ? href : src);
+          preparedCount++;
+        }
+        return;
+      }
+
+      var wrapper = document.createElement('a');
+      wrapper.href = src;
+      applyLightGalleryAttributes(wrapper, img, src);
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+      preparedCount++;
+    });
+
+    return preparedCount;
+  }
+
+  function bindLightGallery(content) {
+    if (!content || typeof window.lightGallery !== 'function') return false;
+    if (content.getAttribute('lg-uid')) return true;
+    if (!content.querySelector('a[data-src]')) return false;
+
+    window.lightGallery(content, {
+      selector: 'a[data-src]',
+      mode: 'lg-fade',
+      speed: 300,
+      download: false,
+      counter: true,
+      zoom: true,
+      scale: 1,
+      actualSize: true
+    });
+
+    return true;
+  }
+
   /**
    * LightGallery 灯箱初始化
-   * 为文章内容中的图片添加点击放大功能
+   * 为文章内容中的图片添加点击放大功能。
+   * 插件脚本使用 defer 加载，可能晚于文章模块执行，因此这里会短时重试等待 window.lightGallery。
    */
   function initLightGallery() {
     var content = document.getElementById('article-content');
-    if (!content || typeof window.lightGallery !== 'function') return;
+    if (!content) return;
 
-    // 已初始化则跳过
-    if (content.getAttribute('lg-uid')) return;
+    prepareLightGalleryItems(content);
 
-    // 找到所有独立图片（不在 a 标签内）
-    var images = content.querySelectorAll('img');
-    var count = 0;
-
-    images.forEach(function(img) {
-      // 跳过已在链接中的图片
-      if (img.closest('a')) return;
-      // 跳过小图标（宽度 < 50px）
-      var w = img.getAttribute('width');
-      if (w && parseInt(w) < 50) return;
-      // 跳过表情/emoji
-      if (img.closest('.emoji') || img.closest('[data-type="emoji"]')) return;
-
-      var src = img.getAttribute('src');
-      if (!src) return;
-
-      // 创建包裹链接
-      var wrapper = document.createElement('a');
-      wrapper.href = src;
-      wrapper.setAttribute('data-src', src);
-      wrapper.setAttribute('data-lg-size', '');
-      wrapper.className = 'inline-block max-w-full';
-
-      // 传递 alt 作为灯箱标题
-      var alt = img.getAttribute('alt');
-      if (alt) wrapper.setAttribute('data-sub-html', '<p>' + alt + '</p>');
-
-      img.parentNode.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-      count++;
-    });
-
-    // 初始化 lightGallery
-    if (count > 0) {
-      window.lightGallery(content, {
-        selector: 'a[data-src]',
-        mode: 'lg-fade',
-        speed: 300,
-        download: false,
-        counter: true,
-        zoom: true,
-        scale: 1,
-        actualSize: true
-      });
+    if (bindLightGallery(content)) {
+      if (lightGalleryRetryTimer) {
+        clearTimeout(lightGalleryRetryTimer);
+        lightGalleryRetryTimer = null;
+      }
+      content.removeAttribute('data-sky-lightgallery-attempts');
+      return;
     }
+
+    if (typeof window.lightGallery === 'function') return;
+
+    var attempts = parseInt(content.getAttribute('data-sky-lightgallery-attempts') || '0', 10);
+    if (attempts >= 50) return;
+
+    content.setAttribute('data-sky-lightgallery-attempts', String(attempts + 1));
+    if (lightGalleryRetryTimer) clearTimeout(lightGalleryRetryTimer);
+    lightGalleryRetryTimer = setTimeout(initLightGallery, 100);
   }
 
   /**
@@ -216,6 +281,13 @@
   // 自动初始化
   document.addEventListener('DOMContentLoaded', function() {
     initArticleContent();
+  });
+
+  document.addEventListener('sky:page-cleanup', function() {
+    if (lightGalleryRetryTimer) {
+      clearTimeout(lightGalleryRetryTimer);
+      lightGalleryRetryTimer = null;
+    }
   });
 
   // 暴露给全局（可选，供页面手动调用）
