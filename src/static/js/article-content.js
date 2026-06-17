@@ -175,6 +175,7 @@
   function applyLightGalleryAttributes(link, img, src) {
     link.setAttribute('data-src', src);
     link.setAttribute('data-sky-lightgallery-item', 'true');
+    link.setAttribute('data-no-swup', 'true');
     if (!link.getAttribute('href')) link.setAttribute('href', src);
     if (!link.getAttribute('data-lg-size')) link.setAttribute('data-lg-size', '');
     if (!link.classList.contains('inline-block')) link.classList.add('inline-block');

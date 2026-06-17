@@ -74,7 +74,9 @@ if (window.__skyPjaxEnabled !== false) {
         url.startsWith('/signup') ||
         url.startsWith('/uc') ||
         url.startsWith('/console') ||
-        url.startsWith('/logout')
+        url.startsWith('/logout') ||
+        /^\/upload\//.test(url) ||
+        /\.(avif|bmp|gif|jpe?g|png|svg|webp)(\?.*)?$/i.test(url)
       );
     },
     plugins: [
