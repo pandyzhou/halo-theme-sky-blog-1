@@ -357,10 +357,13 @@ if (window.__skyPjaxEnabled !== false) {
       try { element = document.querySelector(`#${CSS.escape(hash)}`); } catch (e) {}
     }
     if (element) {
-      window.scrollTo({
-        top: element.getBoundingClientRect().top + window.scrollY - 80,
-        behavior: 'smooth',
-      });
+      // 延迟到 DOM 渲染稳定后再滚动，避免布局未完成时位置不准
+      setTimeout(() => {
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.scrollY - 80,
+          behavior: 'smooth',
+        });
+      }, 100);
       return true;
     }
     return false;
@@ -386,10 +389,13 @@ const notifyInitialSkyPjaxPage = () => {
       try { element = document.querySelector(`#${CSS.escape(rawHash)}`); } catch (e) {}
     }
     if (element) {
+      // 双重 rAF 确保首次渲染完成后再滚动，避免布局未稳定时位置不准
       requestAnimationFrame(() => {
-        window.scrollTo({
-          top: element.getBoundingClientRect().top + window.scrollY - 80,
-          behavior: 'smooth',
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: element.getBoundingClientRect().top + window.scrollY - 80,
+            behavior: 'smooth',
+          });
         });
       });
     }
