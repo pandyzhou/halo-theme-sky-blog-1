@@ -118,16 +118,22 @@ html[data-color-scheme="dark"] ai-summary-widget {
  * 6. 标题锚点链接
  * ==================================================*/
 .heading-anchor {
-  position: absolute;
-  left: -1.5em;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  color: var(--color-primary);
-  text-decoration: none;
   display: inline-flex;
   align-items: center;
+  margin-right: 0.3em;
+  color: var(--color-primary);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  vertical-align: middle;
+}
+h1[id]:hover .heading-anchor,
+h2[id]:hover .heading-anchor,
+h3[id]:hover .heading-anchor,
+h4[id]:hover .heading-anchor,
+h5[id]:hover .heading-anchor,
+h6[id]:hover .heading-anchor {
+  opacity: 1;
 }
 
 /* ===================================================

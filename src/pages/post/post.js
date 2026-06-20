@@ -399,42 +399,19 @@ import {
             headings.forEach(heading => {
                 const id = heading.getAttribute('id');
                 if (!id) return;
+                if (heading.querySelector('.heading-anchor')) return; // 防止重复注入
 
-                // 创建锚点链接包装器
-                heading.style.position = 'relative';
-                heading.style.cursor = 'pointer';
-
-                // 创建锚点图标
+                // 创建锚点图标（内联在标题文字前，不依赖外部定位）
                 const anchor = document.createElement('a');
                 anchor.href = `#${id}`;
                 anchor.className = 'heading-anchor';
-                anchor.innerHTML = '<span class="icon-[heroicons--link] w-4 h-4"></span>';
                 anchor.setAttribute('aria-label', '复制链接');
-                anchor.style.cssText = `
-                    position: absolute;
-                    left: -1.5em;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    opacity: 0;
-                    transition: opacity 0.2s ease;
-                    color: var(--color-primary);
-                    text-decoration: none;
-                    display: inline-flex;
-                    align-items: center;
-                `;
-
-                // 悬停显示
-                heading.addEventListener('mouseenter', () => {
-                    anchor.style.opacity = '1';
-                });
-
-                heading.addEventListener('mouseleave', () => {
-                    anchor.style.opacity = '0';
-                });
+                anchor.innerHTML = '<span class="icon-[heroicons--link] w-4 h-4"></span>';
 
                 // 点击复制链接
                 anchor.addEventListener('click', async (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     const url = window.location.origin + window.location.pathname + `#${id}`;
 
                     try {
