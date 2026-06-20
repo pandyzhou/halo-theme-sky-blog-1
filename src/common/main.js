@@ -343,6 +343,24 @@ if (window.__skyPjaxEnabled !== false) {
     // 不显式 return Promise → swup 立即继续，不阻塞导航管线
   }, { after: true });
 
+  // 重写 Swup 默认锚点滚动，增加 80px 固定导航栏偏移
+  swup.hooks.replace('scroll:anchor', (visit, { hash }) => {
+    if (!hash) return false;
+    let element = null;
+    try { element = document.querySelector(`#${CSS.escape(hash)}`); } catch (e) {}
+    if (!element) {
+      element = document.getElementById(hash) || document.getElementById(decodeURIComponent(hash));
+    }
+    if (element) {
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + window.scrollY - 80,
+        behavior: 'smooth',
+      });
+      return true;
+    }
+    return false;
+  });
+
 } else {
   // PJAX 已关闭 — 设置 noop 桩，防止页面 JS 调用报错
   window.__swup = null;
@@ -351,6 +369,26 @@ if (window.__skyPjaxEnabled !== false) {
 
 const notifyInitialSkyPjaxPage = () => {
   window.SkyPjax?._runPage?.({ initial: true, pjax: false, url: window.location.href });
+
+  // 初始页面加载时处理 URL hash 锚点滚动（带 80px 导航栏偏移）
+  if (window.location.hash) {
+    const rawHash = window.location.hash.slice(1);
+    const decodedHash = decodeURIComponent(rawHash);
+    let element =
+      document.getElementById(rawHash) ||
+      document.getElementById(decodedHash);
+    if (!element) {
+      try { element = document.querySelector(`#${CSS.escape(rawHash)}`); } catch (e) {}
+    }
+    if (element) {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.scrollY - 80,
+          behavior: 'smooth',
+        });
+      });
+    }
+  }
 };
 
 if (document.readyState === 'loading') {
