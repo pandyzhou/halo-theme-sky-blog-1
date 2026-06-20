@@ -346,10 +346,15 @@ if (window.__skyPjaxEnabled !== false) {
   // 重写 Swup 默认锚点滚动，增加 80px 固定导航栏偏移
   swup.hooks.replace('scroll:anchor', (visit, { hash }) => {
     if (!hash) return false;
-    let element = null;
-    try { element = document.querySelector(`#${CSS.escape(hash)}`); } catch (e) {}
+    // Swup 传入的 hash 可能带 "#" 前缀（来自 URL.hash），需先剥离
+    if (hash.charAt(0) === '#') hash = hash.substring(1);
+    if (!hash) return false;
+    const decoded = decodeURIComponent(hash);
+    let element =
+      document.getElementById(hash) ||
+      document.getElementById(decoded);
     if (!element) {
-      element = document.getElementById(hash) || document.getElementById(decodeURIComponent(hash));
+      try { element = document.querySelector(`#${CSS.escape(hash)}`); } catch (e) {}
     }
     if (element) {
       window.scrollTo({
