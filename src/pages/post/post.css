@@ -115,7 +115,7 @@ html[data-color-scheme="dark"] ai-summary-widget {
 }
 
 /* ===================================================
- * 6. 标题锚点链接
+ * 6. 标题锚点链接（点击标题复制链接，无需图标）
  * ==================================================*/
 #article-content h1[id],
 #article-content h2[id],
@@ -123,28 +123,7 @@ html[data-color-scheme="dark"] ai-summary-widget {
 #article-content h4[id],
 #article-content h5[id],
 #article-content h6[id] {
-  position: relative;
-}
-.heading-anchor {
-  position: absolute;
-  left: 0.15em;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-primary);
-  text-decoration: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 1;
-}
-h1[id]:hover .heading-anchor,
-h2[id]:hover .heading-anchor,
-h3[id]:hover .heading-anchor,
-h4[id]:hover .heading-anchor,
-h5[id]:hover .heading-anchor,
-h6[id]:hover .heading-anchor {
-  opacity: 1;
+  cursor: pointer;
 }
 
 /* ===================================================

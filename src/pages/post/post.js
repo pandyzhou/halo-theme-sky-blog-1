@@ -388,7 +388,7 @@ import {
         },
 
         /**
-         * 初始化标题锚点链接
+         * 初始化标题锚点链接（点击标题复制链接）
          */
         initHeadingAnchors() {
             const articleContent = document.getElementById('article-content');
@@ -399,33 +399,30 @@ import {
             headings.forEach(heading => {
                 const id = heading.getAttribute('id');
                 if (!id) return;
-                if (heading.querySelector('.heading-anchor')) return; // 防止重复注入
+                if (heading.dataset.skyAnchorInit) return; // 防止重复绑定
+                heading.dataset.skyAnchorInit = 'true';
 
-                // 创建锚点图标（内联在标题文字前，不依赖外部定位）
-                const anchor = document.createElement('a');
-                anchor.href = `#${id}`;
-                anchor.className = 'heading-anchor';
-                anchor.setAttribute('aria-label', '复制链接');
-                anchor.innerHTML = '<span class="icon-[heroicons--link] w-4 h-4"></span>';
+                // 点击标题复制链接
+                heading.addEventListener('click', async (e) => {
+                    // 排除点击标题内链接/图片等元素的情况
+                    if (e.target.closest('a:not(.heading-anchor), img, button, code, pre')) return;
 
-                // 点击复制链接
-                anchor.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    e.stopPropagation();
                     const url = window.location.origin + window.location.pathname + `#${id}`;
 
                     try {
                         await navigator.clipboard.writeText(url);
-                        anchor.innerHTML = '<span class="icon-[heroicons--check] w-4 h-4"></span>';
+                        // 临时视觉反馈：标题闪烁一下
+                        const originalText = heading.innerHTML;
+                        heading.innerHTML = '<span style="color: var(--color-success); font-size: 0.875em;">✅ 已复制链接</span>';
                         setTimeout(() => {
-                            anchor.innerHTML = '<span class="icon-[heroicons--link] w-4 h-4"></span>';
-                        }, 2000);
+                            heading.innerHTML = originalText;
+                            heading.dataset.skyAnchorInit = 'true';
+                        }, 1500);
                     } catch {
                         // 复制失败静默处理
                     }
                 });
-
-                heading.insertBefore(anchor, heading.firstChild);
             });
         },
 
