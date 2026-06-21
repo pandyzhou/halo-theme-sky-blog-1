@@ -402,7 +402,7 @@ import {
                 if (heading.dataset.skyAnchorInit) return; // 防止重复绑定
                 heading.dataset.skyAnchorInit = 'true';
 
-                // 点击标题复制链接
+                // 点击标题静默复制链接
                 heading.addEventListener('click', async (e) => {
                     // 排除点击标题内链接/图片等元素的情况
                     if (e.target.closest('a:not(.heading-anchor), img, button, code, pre')) return;
@@ -412,13 +412,6 @@ import {
 
                     try {
                         await navigator.clipboard.writeText(url);
-                        // 临时视觉反馈：标题闪烁一下
-                        const originalText = heading.innerHTML;
-                        heading.innerHTML = '<span style="color: var(--color-success); font-size: 0.875em;">✅ 已复制链接</span>';
-                        setTimeout(() => {
-                            heading.innerHTML = originalText;
-                            heading.dataset.skyAnchorInit = 'true';
-                        }, 1500);
                     } catch {
                         // 复制失败静默处理
                     }
